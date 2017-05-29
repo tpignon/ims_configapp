@@ -1,3 +1,4 @@
 <?php
-echo "<h1>Hello QMS from Local!</h1>"
+  header('Location: http://127.0.0.1:8000/');
+  exit();
 ?>
