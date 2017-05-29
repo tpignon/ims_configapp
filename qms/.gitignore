@@ -12,6 +12,7 @@
 /var/sessions/*
 !var/sessions/.gitkeep
 !var/SymfonyRequirements.php
-/vendor/
-!vendor/autoload.php
+!/vendor/
+/vendor/*
+!/vendor/autoload.php
 /web/bundles/
