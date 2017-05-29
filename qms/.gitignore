@@ -15,4 +15,5 @@
 !/vendor/
 /vendor/*
 !/vendor/autoload.php
+!/vendor/composer/
 /web/bundles/
