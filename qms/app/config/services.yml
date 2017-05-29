@@ -7,3 +7,15 @@ services:
     #service_name:
     #    class: AppBundle\Directory\ClassName
     #    arguments: ['@another_service_name', 'plain_value', '%parameter_name%']
+    ldap:
+        class: Symfony\Component\Ldap\Ldap
+        arguments: ['@ext_ldap_adapter']
+    ext_ldap_adapter:
+        class: Symfony\Component\Ldap\Adapter\ExtLdap\Adapter
+        arguments:
+            -   host: internal.imsglobal.com
+                port: 389
+                encryption: tls
+                options:
+                    protocol_version: 3
+                    referrals: false
