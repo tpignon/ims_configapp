@@ -1,3 +1,3 @@
 <?php
-echo "<h1>Hello QMS !</h1>"
+echo "<h1>Hello QMS from Local!</h1>"
 ?>
