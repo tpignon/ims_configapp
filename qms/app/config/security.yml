@@ -7,12 +7,21 @@ security:
         in_memory:
             memory:
               users:
-                    mat:
-                        password: mat
-                        roles: 'ROLE_USER'
-                    admin:
-                        password: admin
-                        roles: 'ROLE_ADMIN'
+                    qlik_srv:
+                        password: 12azQSwx
+                        roles: [ROLE_ADMIN,ROLE_USER]
+                    forcea\qlik_srv:
+                        password: 12azQSwx
+                        roles: [ROLE_ADMIN,ROLE_USER]
+      # Not Working, but standalone WinADController is working so it should work
+      #  ldap_provider:
+      #      ldap:
+      #          service: ldap
+      #          base_dn: dc=example,dc=com
+      #          search_dn: "cn=read-only-admin,dc=example,dc=com"
+      #          search_password: password
+      #          default_roles: ROLE_USER
+      #          uid_key: uid
 
     firewalls:
         # disables authentication for assets and the profiler, adapt it according to your needs
@@ -25,10 +34,20 @@ security:
             # activate different ways to authenticate
 
             # http://symfony.com/doc/current/security.html#a-configuring-how-your-users-will-authenticate
-            http_basic: ~
+            #http_basic: ~
 
             # http://symfony.com/doc/current/cookbook/security/form_login_setup.html
-            #form_login: ~
+          # form_login_ldap:
+            form_login:
+              login_path: login
+              check_path: login
+          #    service: ldap
+          #    dn_string: 'uid={username},dc=example,dc=com'
+
+            # logout
+            logout:
+                path:   /logout
+                target: /login
     access_control:
         # require ROLE_ADMIN for /admin*
         - { path: ^/admin, roles: ROLE_ADMIN }

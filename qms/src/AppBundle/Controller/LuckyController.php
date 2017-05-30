@@ -14,9 +14,6 @@ class LuckyController
      */
     public function numberAction()
     {
-        // SECURITY: The second parameter is used to specify on what object the role is tested.
-        $this->denyAccessUnlessGranted('ROLE_USER', $this, 'Unable to access this page!');
-
         $number = mt_rand(0, 100);
 
         return new Response(

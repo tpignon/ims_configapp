@@ -7,3 +7,12 @@ services:
     #service_name:
     #    class: AppBundle\Directory\ClassName
     #    arguments: ['@another_service_name', 'plain_value', '%parameter_name%']
+
+    # Not Working, but standalone WinADController is working so it should work
+    ldap:
+        class: Symfony\Component\Ldap\Ldap
+        arguments: ['@ext_ldap_adapter']
+    ext_ldap_adapter:
+        class: Symfony\Component\Ldap\Adapter\ExtLdap\Adapter
+        arguments:
+            -   host: "internal.imsglobal.com"

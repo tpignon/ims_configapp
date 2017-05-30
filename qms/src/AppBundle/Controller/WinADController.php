@@ -15,6 +15,7 @@ class WinADController
      */
     public function connectAction()
     {
+      // Without using the service ldap and the global security module 
       $res = "null";
 
       // Eléments d'authentification LDAP
