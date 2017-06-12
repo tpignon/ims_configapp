@@ -33,13 +33,25 @@ class DefaultController extends Controller
      */
     public function testAction()
     {
+      // Test Connection (Optional)
       try {
           $entityManager =  $this->getDoctrine()->getEntityManager();
           $entityManager->getConnection()->connect();
       } catch (\Exception $e) {
           // failed to connect
-          return new Response('<html><body>Failed !<br>'.$e.'</body></html>');
+          return new Response('<html><body>Connection failed !<br>'.$e.'</body></html>');
       }
-        return new Response('<html><body>Connected !</body></html>');
+
+      // Get GeoSalesRep mappings
+      $geoSalesRepMappings = $this->getDoctrine()
+         ->getRepository('AppBundle:GeoSalesRep')
+         ->findAll();
+
+      if (!$geoSalesRepMappings) {
+         throw $this->createNotFoundException(
+             'No geoSalesRepMapping found.'
+         );
+       }
+        return new Response('<html><body>Loaded '.count($geoSalesRepMappings).' geoSalesRepMappings !</body></html>');
     }
 }
