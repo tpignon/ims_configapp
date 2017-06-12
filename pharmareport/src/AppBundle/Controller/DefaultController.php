@@ -27,4 +27,19 @@ class DefaultController extends Controller
     {
         return new Response('<html><body>Admin page!</body></html>');
     }
+
+    /**
+     * @Route("/test")
+     */
+    public function testAction()
+    {
+      try {
+          $entityManager =  $this->getDoctrine()->getEntityManager();
+          $entityManager->getConnection()->connect();
+      } catch (\Exception $e) {
+          // failed to connect
+          return new Response('<html><body>Failed !<br>'.$e.'</body></html>');
+      }
+        return new Response('<html><body>Connected !</body></html>');
+    }
 }
