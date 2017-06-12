@@ -35,7 +35,7 @@ class DefaultController extends Controller
     {
       // Test Connection (Optional)
       try {
-          $entityManager =  $this->getDoctrine()->getEntityManager();
+          $entityManager =  $this->getDoctrine()->getManager();
           $entityManager->getConnection()->connect();
       } catch (\Exception $e) {
           // failed to connect
