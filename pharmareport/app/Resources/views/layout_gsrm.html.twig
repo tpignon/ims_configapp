@@ -1,0 +1,44 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>{% block title %}Module 2 - PharmaReport - Parameters App{% endblock %}</title>
+
+        {% block stylesheets %}
+            <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+            {# <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}"> #}
+            {# <link rel="stylesheet" href="{{ asset('css/main.css') }}"> #}
+        {% endblock %}
+    </head>
+
+    <body>
+        <div class="container">
+            <div id="header">
+                <center>
+                    <h2>PharmaReport - Parameters App</h2>
+                    <p>Web app to manage parameters and configuration.</p>
+                </center>
+            </div>
+        </div>
+
+        <div id="headband" class="well well-sm">
+            <center>
+                <h2><strong>Module 2 : "Geo - Sales Rep" Mapping</strong></h2>
+            </center>
+        </div>
+
+        <div class="container">
+          <div id="body">
+              {% block body %}{% endblock %}
+          </div>
+        </div>
+
+        {% block javascripts %}
+            {# Ajoutez ces lignes JavaScript si vous comptez vous servir des fonctionnalités du bootstrap Twitter #}
+            <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+            <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+        {% endblock %}
+
+  </body>
+</html>

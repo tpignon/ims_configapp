@@ -1,0 +1,13 @@
+html{
+   font-family:sans-serif;
+}
+a{
+	background:0 0
+}
+a:active,a:hover{
+	outline:0
+}
+abbr[title]{
+	border-bottom:1px dotted
+}
+

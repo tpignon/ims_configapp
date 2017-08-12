@@ -16,3 +16,11 @@ services:
         class: Symfony\Component\Ldap\Adapter\ExtLdap\Adapter
         arguments:
             -   host: "internal.imsglobal.com"
+    AppBundle\Service\FileUploader:
+        class: AppBundle\Service\FileUploader
+        arguments:
+            $targetDir: 'C:\ProgramData\MySQL\MySQL Server 5.7\Data\pharmareport_config'
+    GsrmImportMapping:
+        class: AppBundle\Services\GsrmImportMapping
+    GsrmExportMapping:
+        class: AppBundle\Services\GsrmExportMapping

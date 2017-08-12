@@ -4,9 +4,12 @@ namespace AppBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
-* @ORM\Entity
+* GsrmCurrentMapping
+*
+* @ORM\Table(name="gsrm_current_mapping")
+* @ORM\Entity(repositoryClass="AppBundle\Repository\GsrmCurrentMappingRepository")
 */
-class GeoSalesRep
+class GsrmCurrentMapping
 {
     /**
      * @ORM\Column(type="integer")
@@ -15,35 +18,35 @@ class GeoSalesRep
      */
     private $ptk;
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(name="client_output_id", type="integer")
      */
     private $clientOutputId;
     /**
-     * @ORM\Column(type="string", length=50)
+     * @ORM\Column(name="version_geo_structure_code", type="string", length=50)
      */
     private $versionGeoStructureCode;
     /**
-     * @ORM\Column(type="string", length=150)
+     * @ORM\Column(name="geo_team", type="string", length=150)
      */
     private $geoTeam;
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(name="geo_level_number", type="integer")
      */
     private $geoLevelNumber;
     /**
-     * @ORM\Column(type="string", length=150)
+     * @ORM\Column(name="geo_value", type="string", length=150)
      */
     private $geoValue;
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(name="sr_first_name", type="string", length=255)
      */
     private $srFirstName;
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(name="sr_last_name", type="string", length=255)
      */
     private $srLastName;
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(name="sr_email", type="string", length=255)
      */
     private $srEmail;
 
@@ -248,4 +251,19 @@ class GeoSalesRep
     {
         return $this->srEmail;
     }
+
+    public function toArray()
+    {
+        return array(
+            $this->clientOutputId,
+            $this->versionGeoStructureCode,
+            $this->geoTeam,
+            $this->geoLevelNumber,
+            $this->geoValue,
+            $this->srFirstName,
+            $this->srLastName,
+            $this->srEmail
+        );
+    }
+
 }

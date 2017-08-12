@@ -1,0 +1,33 @@
+{# app/Resources/views/GSRM/index.html.twig #}
+{% extends 'layout_gsrm.html.twig' %}
+
+{% block title %}
+    Index - {{ parent() }}
+{% endblock %}
+
+{% block body %}
+
+    <h3><strong>Upload data by submitting a CSV file :</strong></h3>
+    <div class="well">
+        {{ form_start(importGeoSalesRepForm) }}
+            {{ form_row(importGeoSalesRepForm.gsrmImportMappingFile, {'attr': {'class': 'btn btn-default'}}) }}
+            {{ form_widget(importGeoSalesRepForm.submit, {'attr': {'class': 'btn btn-primary'}}) }}
+        {{ form_end(importGeoSalesRepForm) }}
+    </div><br />
+
+    <h3><strong>Download a template mapping file :</strong></h3>
+    <div class="well">
+        {{ form_start(GeoSalesRepExportTemplateForm) }}
+            {{ form_row(GeoSalesRepExportTemplateForm.datasetName) }}
+            {{ form_widget(GeoSalesRepExportTemplateForm.download, {'attr': {'class': 'btn btn-primary'}}) }}
+        {{ form_end(GeoSalesRepExportTemplateForm) }}
+    </div><br />
+
+    <h3><strong>Select a ClientOutputID to see the current mapping :</strong></h3>
+    <div class="well">
+        {{ form_start(GeoSalesRepViewMappingForm) }}
+            {{ form_row(GeoSalesRepViewMappingForm.dataset) }}
+            {{ form_widget(GeoSalesRepViewMappingForm.see, {'attr': {'class': 'btn btn-primary'}, 'label': 'See the mapping' }) }}
+        {{ form_end(GeoSalesRepViewMappingForm) }}
+    </div>
+{% endblock %}

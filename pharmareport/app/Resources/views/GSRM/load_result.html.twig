@@ -1,0 +1,108 @@
+{% extends 'layout_gsrm.html.twig' %}
+
+{% block title %}
+  Import data - {{ parent() }}
+{% endblock %}
+
+{% block body %}
+
+<div>
+    <center>
+        <a href="{{ path('gsrm_index') }}"><button type="button" class="btn btn-warning">Cancel</button></a>
+        <a href="{{ path('gsrm_loaded') }}"><button type="button" class="btn btn-danger">Confirm changes</button></a>
+    </center><br />
+    {# {{ form_widget(importGeoSalesRepForm.cancel, {'attr': {'class': 'btn btn-danger'}}) }}  {{ form_widget(importGeoSalesRepForm.confirm, {'attr': {'class': 'btn btn-primary'}}) }} #}
+</div>
+
+    <div class="jumbotron">
+        {% if totalNbrOfWarnings == 0 %}
+            <h3><strong>Data Quality Checks : {{ totalNbrOfWarnings }} warning</strong></h3><br />
+            No changes
+        {% elseif totalNbrOfWarnings == 1 %}
+            <h3><strong>Data Quality Checks : {{ totalNbrOfWarnings }} warning</strong></h3><br />
+            {% for item in nbrOfWarningsByClientoutputId %}
+                {% if item.nbr_of_warnings == 1 %}
+                    <h4>ClientoutputId <strong>{{ item.clientoutputId }}</strong> : <strong>{{ item.nbr_of_warnings }} warning</strong></h4>
+                {% elseif item.nbr_of_warnings > 1 %}
+                    <h4>ClientoutputId <strong>{{ item.clientoutputId }}</strong> : <strong>{{ item.nbr_of_warnings }} warnings</strong></h4>
+                {% else %}
+                    <h4>ClientoutputId <strong>{{ item.clientoutputId }}</strong> : <strong>{{ item.nbr_of_warnings }} warning</strong></h4>
+                {% endif %}
+                <ul>
+                {% for element in dataQualityChecks %}
+                    {% if element.clientOutputId == item.clientoutputId and element.status == 'WARNING' %}
+                        <li>{{ element.analyzedField }} : {{ element.info }}</li>
+                    {% endif %}
+                {% endfor %}
+                </ul>
+                <br />
+            {% endfor %}
+        {% else %}
+            <h3><strong>Data Quality Checks : {{ totalNbrOfWarnings }} warnings</strong></h3><br />
+            {% for item in nbrOfWarningsByClientoutputId %}
+                {% if item.nbr_of_warnings == 1 %}
+                    <h4>ClientoutputId <strong>{{ item.clientoutputId }}</strong> : <strong>{{ item.nbr_of_warnings }} warning</strong></h4>
+                {% elseif item.nbr_of_warnings > 1 %}
+                    <h4>ClientoutputId <strong>{{ item.clientoutputId }}</strong> : <strong>{{ item.nbr_of_warnings }} warnings</strong></h4>
+                {% else %}
+                    <h4>ClientoutputId <strong>{{ item.clientoutputId }}</strong> : <strong>{{ item.nbr_of_warnings }} warning</strong></h4>
+                {% endif %}
+                <ul>
+                {% for element in dataQualityChecks %}
+                    {% if element.clientOutputId == item.clientoutputId and element.status == 'WARNING' %}
+                        <li>{{ element.analyzedField }} : {{ element.info }}</li>
+                    {% endif %}
+                {% endfor %}
+                </ul>
+                <br />
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    {#<div class="jumbotron">
+        <h3><strong>Data Quality Checks :</strong></h3><br />
+        {% for item in dataQualityChecks %}
+            <ul>
+              <li><strong>{{ item.clientOutputId }}</strong> - {{ item.analyzedField }} : {{ item.status }} -> {{ item.info }}</li>
+            </ul>
+        {% endfor %}
+    </div>#}
+
+    <div>
+        <center>
+            <a href="{{ path('gsrm_index') }}"><button type="button" class="btn btn-warning">Cancel</button></a>
+            <a href="{{ path('gsrm_loaded') }}"><button type="button" class="btn btn-danger">Confirm changes</button></a>
+        </center>
+        {# {{ form_widget(importGeoSalesRepForm.cancel, {'attr': {'class': 'btn btn-danger'}}) }}  {{ form_widget(importGeoSalesRepForm.confirm, {'attr': {'class': 'btn btn-primary'}}) }} #}
+    </div>
+
+
+    <div class="table-responsive">
+      <h3><strong>Preview import data :</strong></h3>
+        <table class="table table-bordered">
+          <tr>
+            <th>ClientoutputId</th>
+            <th>Version geo structure code</th>
+            <th>MarketId</th>
+            <th>Level</th>
+            <th>NameLevel</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>E-mail</th>
+          </tr>
+          {% for element in importMapping %}
+            <tr>
+              <td>{{ element.clientOutputId }}</td>
+              <td>{{ element.versionGeoStructureCode }}</td>
+              <td>{{ element.geoTeam }}</td>
+              <td>{{ element.geoLevelNumber }}</td>
+              <td>{{ element.geoValue }}</td>
+              <td>{{ element.srFirstName }}</td>
+              <td>{{ element.srLastName }}</td>
+              <td>{{ element.srEmail }}</td>
+            </tr>
+          {% endfor %}
+        </table>
+    </div>
+
+{% endblock %}

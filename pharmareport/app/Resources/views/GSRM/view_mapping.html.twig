@@ -1,0 +1,55 @@
+{% extends 'layout_gsrm.html.twig' %}
+
+{% block title %}
+    GeoSalesRep Mapping - {{ parent() }}
+{% endblock %}
+
+{% block body %}
+    <h3><strong>Select a ClientOutputID to see the current mapping :</strong></h3>
+    <center>
+        <div class="well">
+            {{ form_start(GeoSalesRepViewMappingForm) }}
+                {{ form_row(GeoSalesRepViewMappingForm.dataset) }}
+                {{ form_widget(GeoSalesRepViewMappingForm.see, {'attr': {'class': 'btn btn-primary'}, 'label': 'See the mapping' }) }}
+                <a href="{{ path('gsrm_index') }}"><button type="button" class="btn btn-info">Index page</button></a>
+            {{ form_end(GeoSalesRepViewMappingForm) }}
+        </div>
+    </center><br />
+
+    <table border="0px" width="100%">
+        <tr>
+            <td>
+                <h3><strong>Current mapping for ClientoutputId {{ datasetId }} :</strong></h3>
+            </td>
+            <td align="right">
+                {{ form_start(downloadForm) }}
+                    {{ form_widget(downloadForm.download, {'attr': {'class': 'btn btn-primary'}, 'label': 'Download this mapping' }) }}
+                {{ form_end(downloadForm) }}
+            </td>
+        </tr>
+    </table>
+    <table class="table table-bordered">
+        <tr>
+            <th>ClientoutputId</th>
+            <th>Version geo structure code</th>
+            <th>MarketId</th>
+            <th>Level</th>
+            <th>NameLevel</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>E-mail</th>
+        </tr>
+        {% for element in results %}
+            <tr>
+                <td>{{ element.clientOutputId }}</td>
+                <td>{{ element.versionGeoStructureCode }}</td>
+                <td>{{ element.geoTeam }}</td>
+                <td>{{ element.geoLevelNumber }}</td>
+                <td>{{ element.geoValue }}</td>
+                <td>{{ element.srFirstName }}</td>
+                <td>{{ element.srLastName }}</td>
+                <td>{{ element.srEmail }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

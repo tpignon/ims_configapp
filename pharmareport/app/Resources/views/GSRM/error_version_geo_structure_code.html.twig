@@ -1,0 +1,25 @@
+{% extends 'layout_gsrm.html.twig' %}
+
+{% block title %}
+  Error - {{ parent() }}
+{% endblock %}
+
+{% block body %}
+
+    <div class="alert alert-danger">
+      <center>
+        <h3><strong>ERROR</strong></h3><br />
+        {{ error_message }}<br /><br />
+        For ClientoutputId <strong>{{ client_output_id }}</strong>, there are the following version geo structure codes in the CSV file:<br /><br />
+        <table>
+        {% for element in distinct_version_geo_structure_code %}
+            <tr><td>
+            <li><strong>{{ element.versionGeoStructureCode }}</strong></li>
+            </tr></td>
+        {% endfor %}
+        </table><br />
+      </center>
+    </div><br />
+    <center><a href="{{ path('gsrm_index') }}"><button type="button" class="btn btn-info">Index page</button></a></center>
+
+{% endblock %}
