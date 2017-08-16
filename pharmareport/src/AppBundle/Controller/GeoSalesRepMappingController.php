@@ -41,15 +41,14 @@ class GeoSalesRepMappingController extends Controller
 
         if ($request->isMethod('POST') && $importGeoSalesRepForm->handleRequest($request)->isValid()) {
 
-            $fileName = $this->getParameter('geosalesrep_csvfile_filename');
-            $destinationFolder = $this->getParameter('geosalesrep_csvfile_folder');
-
-            $file = $importGeoSalesRepFile->getGsrmImportMappingFile();
-            $file->move($destinationFolder, $fileName);
+            $currentLoadDate = date('Y-m-d H:i:s');
 
             $GeoSalesRepMappingFileFolder = $this->getParameter('geosalesrep_csvfile_folder');
             $GeoSalesRepMappingFileName = $this->getParameter('geosalesrep_csvfile_filename');
             $GeoSalesRepMappingFile = $GeoSalesRepMappingFileFolder . '/' . $GeoSalesRepMappingFileName;
+
+            $file = $importGeoSalesRepFile->getGsrmImportMappingFile();
+            $file->move($GeoSalesRepMappingFileFolder, $GeoSalesRepMappingFileName);
 
             $geosalesrepImport = $this->get('GsrmImportMapping');
             $geosalesrepMappings = array(); // This array will contain elements extracted from csv file
@@ -74,12 +73,8 @@ class GeoSalesRepMappingController extends Controller
             // Insert into MySQL DB (table gsrm_import_mapping)
             // ------------------------------------------------------
 
-            $currentLoadDate = date('Y-m-d H:i:s');
-
             for ($row = 1; $row < count($geosalesrepMappings); $row++) { // Start at 1 because the first row contains headers
-
                 $importGeoSalesRep = new GsrmImportMapping();
-
                 $importGeoSalesRep->setClientOutputId($geosalesrepMappings[$row]['client_output_id']);
                 $importGeoSalesRep->setVersionGeoStructureCode($geosalesrepMappings[$row]['version_geo_structure_code']);
                 $importGeoSalesRep->setGeoTeam($geosalesrepMappings[$row]['geo_team']);
