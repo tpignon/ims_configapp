@@ -10,8 +10,8 @@
         <div class="well">
             {{ form_start(GeoSalesRepViewMappingForm) }}
                 {{ form_row(GeoSalesRepViewMappingForm.dataset) }}
-                {{ form_widget(GeoSalesRepViewMappingForm.see, {'attr': {'class': 'btn btn-primary'}, 'label': 'See the mapping' }) }}
                 <a href="{{ path('gsrm_index') }}"><button type="button" class="btn btn-info">Index page</button></a>
+                {{ form_widget(GeoSalesRepViewMappingForm.see, {'attr': {'class': 'btn btn-primary'}, 'label': 'See the mapping' }) }}
             {{ form_end(GeoSalesRepViewMappingForm) }}
         </div>
     </center><br />

@@ -40,6 +40,23 @@ class GsrmImportMappingRepository extends EntityRepository
         ;
     }
 
+    public function getDistinctVersionGeoStructureCode($clientoutputid)
+    {
+        $qb = $this->createQueryBuilder('i');
+
+        $qb
+          ->select('i.versionGeoStructureCode')
+          ->where('i.clientOutputId = :id')
+          ->setParameter('id', $clientoutputid)
+          ->distinct()
+        ;
+
+        return $qb
+          ->getQuery()
+          ->getArrayResult()
+        ;
+    }
+
     public function getDistinctSalesRep($clientoutputid)
     {
         $qb = $this->createQueryBuilder('i');

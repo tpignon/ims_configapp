@@ -6,38 +6,16 @@
 
 {% block body %}
 
-<div>
-    <center>
-        <a href="{{ path('gsrm_index') }}"><button type="button" class="btn btn-warning">Cancel</button></a>
-        <a href="{{ path('gsrm_loaded') }}"><button type="button" class="btn btn-danger">Confirm changes</button></a>
-    </center><br />
-    {# {{ form_widget(importGeoSalesRepForm.cancel, {'attr': {'class': 'btn btn-danger'}}) }}  {{ form_widget(importGeoSalesRepForm.confirm, {'attr': {'class': 'btn btn-primary'}}) }} #}
-</div>
+    <div>
+        <center>
+            <a href="{{ path('gsrm_index') }}"><button type="button" class="btn btn-warning">Cancel</button></a>
+            <a href="{{ path('gsrm_loaded') }}"><button type="button" class="btn btn-danger">Confirm changes</button></a>
+        </center><br />
+        {# {{ form_widget(importGeoSalesRepForm.cancel, {'attr': {'class': 'btn btn-danger'}}) }}  {{ form_widget(importGeoSalesRepForm.confirm, {'attr': {'class': 'btn btn-primary'}}) }} #}
+    </div>
 
     <div class="jumbotron">
-        {% if totalNbrOfWarnings == 0 %}
-            <h3><strong>Data Quality Checks : {{ totalNbrOfWarnings }} warning</strong></h3><br />
-            No changes
-        {% elseif totalNbrOfWarnings == 1 %}
-            <h3><strong>Data Quality Checks : {{ totalNbrOfWarnings }} warning</strong></h3><br />
-            {% for item in nbrOfWarningsByClientoutputId %}
-                {% if item.nbr_of_warnings == 1 %}
-                    <h4>ClientoutputId <strong>{{ item.clientoutputId }}</strong> : <strong>{{ item.nbr_of_warnings }} warning</strong></h4>
-                {% elseif item.nbr_of_warnings > 1 %}
-                    <h4>ClientoutputId <strong>{{ item.clientoutputId }}</strong> : <strong>{{ item.nbr_of_warnings }} warnings</strong></h4>
-                {% else %}
-                    <h4>ClientoutputId <strong>{{ item.clientoutputId }}</strong> : <strong>{{ item.nbr_of_warnings }} warning</strong></h4>
-                {% endif %}
-                <ul>
-                {% for element in dataQualityChecks %}
-                    {% if element.clientOutputId == item.clientoutputId and element.status == 'WARNING' %}
-                        <li>{{ element.analyzedField }} : {{ element.info }}</li>
-                    {% endif %}
-                {% endfor %}
-                </ul>
-                <br />
-            {% endfor %}
-        {% else %}
+        {% if totalNbrOfWarnings > 1 %}
             <h3><strong>Data Quality Checks : {{ totalNbrOfWarnings }} warnings</strong></h3><br />
             {% for item in nbrOfWarningsByClientoutputId %}
                 {% if item.nbr_of_warnings == 1 %}
@@ -48,6 +26,29 @@
                     <h4>ClientoutputId <strong>{{ item.clientoutputId }}</strong> : <strong>{{ item.nbr_of_warnings }} warning</strong></h4>
                 {% endif %}
                 <ul>
+                {% if item.nbr_of_mappings == 0 %}
+                    <li>There was no Geo-SalesRep mapping before, this is the first one.</li>
+                {% endif %}
+                {% for element in dataQualityChecks %}
+                    {% if element.clientOutputId == item.clientoutputId and element.status == 'WARNING' %}
+                        <li>{{ element.analyzedField }} : {{ element.info }}</li>
+                    {% endif %}
+                {% endfor %}
+                </ul>
+                <br />
+            {% endfor %}
+        {% else %}
+            <h3><strong>Data Quality Checks : {{ totalNbrOfWarnings }} warning</strong></h3><br />
+            {% for item in nbrOfWarningsByClientoutputId %}
+                {% if item.nbr_of_warnings > 1 %}
+                    <h4>ClientoutputId <strong>{{ item.clientoutputId }}</strong> : <strong>{{ item.nbr_of_warnings }} warnings</strong></h4>
+                {% else %}
+                    <h4>ClientoutputId <strong>{{ item.clientoutputId }}</strong> : <strong>{{ item.nbr_of_warnings }} warning</strong></h4>
+                {% endif %}
+                <ul>
+                {% if item.nbr_of_mappings == 0 %}
+                    <li>There was no Geo-SalesRep mapping before, this is the first one.</li>
+                {% endif %}
                 {% for element in dataQualityChecks %}
                     {% if element.clientOutputId == item.clientoutputId and element.status == 'WARNING' %}
                         <li>{{ element.analyzedField }} : {{ element.info }}</li>

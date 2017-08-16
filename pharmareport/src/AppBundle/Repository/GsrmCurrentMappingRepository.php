@@ -6,6 +6,24 @@ use Doctrine\ORM\EntityRepository;
 
 class GsrmCurrentMappingRepository extends EntityRepository
 {
+
+    public function getNumberOfMappings($clientoutputid)
+    {
+        $qb = $this->createQueryBuilder('c');
+
+        $qb
+            ->select('count(c.ptk)')
+            ->where('c.clientOutputId = :id')
+            ->setParameter('id', $clientoutputid)
+        ;
+
+        return $qb
+          ->getQuery()
+          ->getSingleScalarResult()
+        ;
+    }
+
+
     public function getMappingByClientOutputId($clientoutputid)
     {
         $qb = $this->createQueryBuilder('g');
@@ -19,6 +37,7 @@ class GsrmCurrentMappingRepository extends EntityRepository
           ->getResult()
         ;
     }
+
 
     public function getDistinctValuesInColumn($columnKey, $clientoutputid)
     {
@@ -38,6 +57,25 @@ class GsrmCurrentMappingRepository extends EntityRepository
         ;
     }
 
+
+    public function getDistinctVersionGeoStructureCode($clientoutputid)
+    {
+        $qb = $this->createQueryBuilder('i');
+
+        $qb
+          ->select('i.versionGeoStructureCode')
+          ->where('i.clientOutputId = :id')
+          ->setParameter('id', $clientoutputid)
+          ->distinct()
+        ;
+
+        return $qb
+          ->getQuery()
+          ->getArrayResult()
+        ;
+    }
+
+
     public function getDistinctSalesRep($clientoutputid)
     {
         $qb = $this->createQueryBuilder('i');
@@ -55,6 +93,7 @@ class GsrmCurrentMappingRepository extends EntityRepository
           ->getArrayResult()
         ;
     }
+
 
     public function getDistinctGeoName($clientoutputid, $geoLevelNumber)
     {
