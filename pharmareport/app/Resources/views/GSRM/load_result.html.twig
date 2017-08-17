@@ -6,14 +6,6 @@
 
 {% block body %}
 
-    <div>
-        <center>
-            <a href="{{ path('gsrm_index') }}"><button type="button" class="btn btn-warning">Cancel</button></a>
-            <a href="{{ path('gsrm_loaded') }}"><button type="button" class="btn btn-danger">Confirm changes</button></a>
-        </center><br />
-        {# {{ form_widget(importGeoSalesRepForm.cancel, {'attr': {'class': 'btn btn-danger'}}) }}  {{ form_widget(importGeoSalesRepForm.confirm, {'attr': {'class': 'btn btn-primary'}}) }} #}
-    </div>
-
     <div class="jumbotron">
         {% if totalNbrOfWarnings > 1 %}
             <h3><strong>Data Quality Checks : {{ totalNbrOfWarnings }} warnings</strong></h3><br />
@@ -26,7 +18,7 @@
                     <h4>ClientoutputId <strong>{{ item.clientoutputId }}</strong> : <strong>{{ item.nbr_of_warnings }} warning</strong></h4>
                 {% endif %}
                 <ul>
-                {% if item.nbr_of_mappings == 0 %}
+                {% if item.nbr_of_current_mappings == 0 %}
                     <li>There was no Geo-SalesRep mapping before, this is the first one.</li>
                 {% endif %}
                 {% for element in dataQualityChecks %}
@@ -40,13 +32,9 @@
         {% else %}
             <h3><strong>Data Quality Checks : {{ totalNbrOfWarnings }} warning</strong></h3><br />
             {% for item in nbrOfWarningsByClientoutputId %}
-                {% if item.nbr_of_warnings > 1 %}
-                    <h4>ClientoutputId <strong>{{ item.clientoutputId }}</strong> : <strong>{{ item.nbr_of_warnings }} warnings</strong></h4>
-                {% else %}
-                    <h4>ClientoutputId <strong>{{ item.clientoutputId }}</strong> : <strong>{{ item.nbr_of_warnings }} warning</strong></h4>
-                {% endif %}
+                <h4>ClientoutputId <strong>{{ item.clientoutputId }}</strong> : <strong>{{ item.nbr_of_warnings }} warning</strong></h4>
                 <ul>
-                {% if item.nbr_of_mappings == 0 %}
+                {% if item.nbr_of_current_mappings == 0 %}
                     <li>There was no Geo-SalesRep mapping before, this is the first one.</li>
                 {% endif %}
                 {% for element in dataQualityChecks %}
@@ -60,23 +48,15 @@
         {% endif %}
     </div>
 
-    {#<div class="jumbotron">
-        <h3><strong>Data Quality Checks :</strong></h3><br />
-        {% for item in dataQualityChecks %}
-            <ul>
-              <li><strong>{{ item.clientOutputId }}</strong> - {{ item.analyzedField }} : {{ item.status }} -> {{ item.info }}</li>
-            </ul>
-        {% endfor %}
-    </div>#}
-
     <div>
         <center>
-            <a href="{{ path('gsrm_index') }}"><button type="button" class="btn btn-warning">Cancel</button></a>
-            <a href="{{ path('gsrm_loaded') }}"><button type="button" class="btn btn-danger">Confirm changes</button></a>
+            {{ form_start(confirmForm) }}
+                {{ form_widget(confirmForm.cancel, {'attr': {'class': 'btn btn-warning'}}) }}
+                {{ form_widget(confirmForm.confirm, {'attr': {'class': 'btn btn-danger'}}) }}
+            {{ form_end(confirmForm) }}
         </center>
-        {# {{ form_widget(importGeoSalesRepForm.cancel, {'attr': {'class': 'btn btn-danger'}}) }}  {{ form_widget(importGeoSalesRepForm.confirm, {'attr': {'class': 'btn btn-primary'}}) }} #}
+        <br />
     </div>
-
 
     <div class="table-responsive">
       <h3><strong>Preview import data :</strong></h3>

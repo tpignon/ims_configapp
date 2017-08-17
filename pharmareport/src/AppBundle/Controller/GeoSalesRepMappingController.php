@@ -53,13 +53,18 @@ class GeoSalesRepMappingController extends Controller
             $geosalesrepImport = $this->get('GsrmImportMapping');
             $geosalesrepMappings = array(); // This array will contain elements extracted from csv file
             $geosalesrepMappings = $geosalesrepImport->importCSV($GeoSalesRepMappingFile); // Row 0 contains headers
-            if (array_key_exists('error_type', $geosalesrepMappings)) {
-                if ($geosalesrepMappings['error_type'] == 'file_does_not_exist') {
+            if (array_key_exists('error_type', $geosalesrepMappings))
+            {
+                // File doesn't exist
+                if ($geosalesrepMappings['error_type'] == 'file_does_not_exist')
+                {
                     return $this->render('GSRM/error_submit_file.html.twig', array(
                         'error_message' => 'File "' . $geosalesrepMappings['error_file'] . '" doesn\'t exist.',
                     ));
                 }
-                if ($geosalesrepMappings['error_type'] == 'nbr_items_on_row') {
+                // Bad number of columns
+                if ($geosalesrepMappings['error_type'] == 'nbr_items_on_row')
+                {
                     return $this->render('GSRM/error_submit_file.html.twig', array(
                         'error_row' => $geosalesrepMappings['error_row'],
                         'error_message' => $geosalesrepMappings['error_nbr_of_columns'] . ' items found --> ' . $geosalesrepMappings['max_nbr_of_columns'] . ' items (columns) are expected.',
@@ -73,7 +78,8 @@ class GeoSalesRepMappingController extends Controller
             // Insert into MySQL DB (table gsrm_import_mapping)
             // ------------------------------------------------------
 
-            for ($row = 1; $row < count($geosalesrepMappings); $row++) { // Start at 1 because the first row contains headers
+            for ($row = 1; $row < count($geosalesrepMappings); $row++) // Start at 1 because the first row contains headers
+            {
                 $importGeoSalesRep = new GsrmImportMapping();
                 $importGeoSalesRep->setClientOutputId($geosalesrepMappings[$row]['client_output_id']);
                 $importGeoSalesRep->setVersionGeoStructureCode($geosalesrepMappings[$row]['version_geo_structure_code']);
@@ -88,9 +94,11 @@ class GeoSalesRepMappingController extends Controller
                 $errors = $validator->validate($importGeoSalesRep);
                 $error_row = $row+1;
 
-                if(count($errors) > 0) {
+                if(count($errors) > 0)
+                {
                     $error_message = array();
-                    foreach ($errors as $error) {
+                    foreach ($errors as $error)
+                    {
                         $error_message[] = $error->getMessage();
                     }
                     return $this->render('GSRM/error_asserts.html.twig', array(
@@ -98,13 +106,13 @@ class GeoSalesRepMappingController extends Controller
                         'error_message' => $error_message,
                     ));
                 }
-                else {
+                else
+                {
                     $em->persist($importGeoSalesRep);
                 }
 
             }
 
-            //$em->createQuery('DELETE FROM AppBundle\Entity\GsrmImportMapping')->execute(); // ne remet pas les ptk à 0
             // Truncate table "gsrm_import_mapping"
             $connection = $em->getConnection();
             $platform = $connection->getDatabasePlatform();
@@ -116,17 +124,17 @@ class GeoSalesRepMappingController extends Controller
             // ------------------------------------------------------------------------------------------------------------------
 
             // 0 - General
-            $em = $this->getDoctrine()->getManager();
+            //$em = $this->getDoctrine()->getManager();
             $currentMappingRepository = $em->getRepository('AppBundle:GsrmCurrentMapping');
             $importMappingRepository = $em->getRepository('AppBundle:GsrmImportMapping');
             $DwhDimGeoSalesRepRepository = $em->getRepository('AppBundle:DwhDimGeoSalesRep');
 
-            $distinctClientoutputIdInImportMapping = $importMappingRepository->getDistinctClientOutputId();
+            $distinctClientoutputidInImportMapping = $importMappingRepository->getDistinctClientOutputId();
 
             // Loop on Client_Output_Id
-            for ($row = 0; $row < count($distinctClientoutputIdInImportMapping); $row++) {
+            for ($row = 0; $row < count($distinctClientoutputidInImportMapping); $row++) {
 
-                $currentClientoutputid = $distinctClientoutputIdInImportMapping[$row]['clientOutputId']; // Current Client_output_id
+                $currentClientoutputid = $distinctClientoutputidInImportMapping[$row]['clientOutputId']; // Current Client_output_id
 
                 // ---------------------------------------
                 // 1 - version_geo_structure_code
@@ -134,7 +142,8 @@ class GeoSalesRepMappingController extends Controller
                 $distinctVersionGeoStructureCodeInImportMapping = $importMappingRepository->getDistinctVersionGeoStructureCode($currentClientoutputid);
                 $distinctVersionGeoStructureCodeInCurrentMapping = $currentMappingRepository->getDistinctVersionGeoStructureCode($currentClientoutputid);
 
-                if (count($distinctVersionGeoStructureCodeInImportMapping) > '1') {
+                if (count($distinctVersionGeoStructureCodeInImportMapping) > '1')
+                {
                    return $this->render('GSRM/error_version_geo_structure_code.html.twig', array(
                         'error_message' => 'Version_geo_structure_code must be unique for one ClientoutputId. ',
                         'client_output_id' => $currentClientoutputid,
@@ -143,8 +152,9 @@ class GeoSalesRepMappingController extends Controller
                 }
 
                 // Check if first mapping for this client_output_id
-                if (count($distinctVersionGeoStructureCodeInCurrentMapping) == 0) {
-                  
+                if (count($distinctVersionGeoStructureCodeInCurrentMapping) == 0)
+                {
+                    /*
                     $dataQualityCheck = new GsrmDataQualityChecks();
                     $dataQualityCheck->setClientOutputId($currentClientoutputid);
                     $dataQualityCheck->setLoadDate($currentLoadDate);
@@ -152,21 +162,25 @@ class GeoSalesRepMappingController extends Controller
                     $dataQualityCheck->setStatus('CORRECT');
                     $dataQualityCheck->setInfo('No "Geo - Sales Rep" mapping before, this is the first one.');
                     $em->persist($dataQualityCheck);
+                    */
 
                     // ---------------------------------------
                     // 3 - geoLevelNumber
                     // ---------------------------------------
-                    $distinctGeoLevelInImportMapping = $importMappingRepository->getDistinctValuesInColumn('geoLevelNumber', $currentClientoutputid);
+                    //$distinctGeoLevelInImportMapping = $importMappingRepository->getDistinctValuesInColumn('geoLevelNumber', $currentClientoutputid);
+                    $distinctGeoLevelInImportMapping = $importMappingRepository->getDistinctGeoLevelNumber($currentClientoutputid);
 
                     $importGeoLevelArray = array(); // Store value in array to be compared
-                    for ($i = 0; $i < count($distinctGeoLevelInImportMapping); $i++) {
+                    for ($i = 0; $i < count($distinctGeoLevelInImportMapping); $i++)
+                    {
                         $importGeoLevelArray[] = $distinctGeoLevelInImportMapping[$i]['geoLevelNumber'];
                     }
 
                     // ---------------------------------------
                     // 4 - geoValue
                     // ---------------------------------------
-                    for ($geoLevelRow = 0; $geoLevelRow < count($importGeoLevelArray); $geoLevelRow++) {
+                    for ($geoLevelRow = 0; $geoLevelRow < count($importGeoLevelArray); $geoLevelRow++)
+                    {
                         $geoLevel = $importGeoLevelArray[$geoLevelRow];
                         $distinctGeoValueInImportMapping = $importMappingRepository->getDistinctGeoName($currentClientoutputid, $geoLevel);
                         $distinctGeoValueInDWH = $DwhDimGeoSalesRepRepository->getDistinctValuesInColumn('geoLevel'.$geoLevel, $currentClientoutputid);
@@ -182,7 +196,7 @@ class GeoSalesRepMappingController extends Controller
                         }
 
                         $comparisonImportWithDwh = array_diff($importGeoValueArray, $DwhGeoValueArray);
-                        $comparisonDwhWithImport= array_diff($DwhGeoValueArray, $importGeoValueArray);
+                        $comparisonDwhWithImport = array_diff($DwhGeoValueArray, $importGeoValueArray);
 
                         // Check if we have unexpected geo in new values regarding the geo_level_number
                         if (count($comparisonImportWithDwh) > '0') {
@@ -205,7 +219,7 @@ class GeoSalesRepMappingController extends Controller
                                 $dataQualityCheck->setLoadDate($currentLoadDate);
                                 $dataQualityCheck->setAnalyzedField('geo_value');
                                 $dataQualityCheck->setStatus('WARNING');
-                                $dataQualityCheck->setInfo('There is currently no mapping for NameLevel "' . $item . '" on level ' . $geoLevel . '.');
+                                $dataQualityCheck->setInfo('There is currently no mapping for geo (NameLevel) "' . $item . '" on level ' . $geoLevel . '.');
                                 $em->persist($dataQualityCheck);
                             }
                         }
@@ -559,7 +573,7 @@ class GeoSalesRepMappingController extends Controller
             $nbrOfWarningsByClientoutputId[] = array(
                 'clientoutputId' => $clientoutputId,
                 'nbr_of_warnings' => count($dataQualityChecksRepository->getWarningsForOneClientoutputId($loadDate, $clientoutputId)),
-                'nbr_of_mappings' => $currentMappingRepository->getNumberOfMappings($clientoutputId)
+                'nbr_of_current_mappings' => $currentMappingRepository->getNumberOfMappings($clientoutputId)
             );
         }
 
@@ -569,67 +583,88 @@ class GeoSalesRepMappingController extends Controller
             $totalNbrOfWarnings += $nbrOfWarningsByClientoutputId[$row]['nbr_of_warnings'];
         }
 
+        // Confirm Form
+        $confirmImportMappingForm = $this->createFormBuilder()
+            ->add('cancel', SubmitType::class, array('label' => 'Cancel'))
+            ->add('confirm', SubmitType::class, array('label' => 'Confirm changes'))
+            ->getForm();
+
+        $confirmImportMappingForm->handleRequest($request);
+
+        if ($confirmImportMappingForm->isSubmitted() && $confirmImportMappingForm->isValid()) {
+            if($confirmImportMappingForm->get('cancel')->isClicked())
+            {
+                // Remove Data Quality Checks for $loadDate
+                while ($dataQualityChecksRepository->findOneBy(array('loadDate' => $loadDate))) {
+                    $itemsToRemove = $dataQualityChecksRepository->findOneBy(array('loadDate' => $loadDate));
+                    $em->remove($itemsToRemove);
+                    $em->flush();
+                }
+                // Truncate table "gsrm_import_mapping"
+                $connection = $em->getConnection();
+                $platform = $connection->getDatabasePlatform();
+                $connection->executeUpdate($platform->getTruncateTableSQL('gsrm_import_mapping', true));
+                // Return
+                return $this->redirectToRoute('gsrm_index');
+            }
+            if($confirmImportMappingForm->get('confirm')->isClicked())
+            {
+                // Delete current mappings before adding the new ones
+                $em = $this->getDoctrine()->getManager();
+                $currentMappingRepository = $em->getRepository('AppBundle:GsrmCurrentMapping');
+                $importMappingRepository = $em->getRepository('AppBundle:GsrmImportMapping');
+
+                $distinctClientoutputidInImportMapping = $importMappingRepository->getDistinctClientOutputId();
+                $nbrDistinctImportClientoutputid = count($distinctClientoutputidInImportMapping);
+
+                for ($row = 0; $row < $nbrDistinctImportClientoutputid; $row++) {
+
+                    $currentImportClientoutputid = $distinctClientoutputidInImportMapping[$row]['clientOutputId']; // Current Client_output_id
+
+                    while ($currentMappingRepository->findOneBy(array('clientOutputId' => $currentImportClientoutputid))) {
+                        $itemsToRemove = $currentMappingRepository->findOneBy(array('clientOutputId' => $currentImportClientoutputid));
+                        $em->remove($itemsToRemove);
+                        $em->flush();
+                    }
+                }
+
+                // Adding new mappings
+                $em = $this->getDoctrine()->getManager();
+                $currentMappingRepository = $em->getRepository('AppBundle:GsrmCurrentMapping');
+                $importMappingRepository = $em->getRepository('AppBundle:GsrmImportMapping');
+                $importGeoSalesRepMappings = $importMappingRepository->findAll();
+                foreach ($importGeoSalesRepMappings as $mapping) {
+                    $geoSalesRep = new GsrmCurrentMapping();
+                    $geoSalesRep->setClientOutputId($mapping->getClientOutputId());
+                    $geoSalesRep->setVersionGeoStructureCode($mapping->getVersionGeoStructureCode());
+                    $geoSalesRep->setGeoTeam($mapping->getGeoTeam());
+                    $geoSalesRep->setGeoLevelNumber($mapping->getGeoLevelNumber());
+                    $geoSalesRep->setGeoValue($mapping->getGeoValue());
+                    $geoSalesRep->setSrFirstName($mapping->getSrFirstName());
+                    $geoSalesRep->setSrLastName($mapping->getSrLastName());
+                    $geoSalesRep->setSrEmail($mapping->getSrEmail());
+                    $em->persist($geoSalesRep);
+                }
+                $em->flush();
+
+                // Return
+                return $this->render('GSRM/loaded.html.twig');
+                //return $this->redirectToRoute('gsrm_loaded');
+            }
+        }
+
 
         return $this->render('GSRM/load_result.html.twig', array(
             'dataQualityChecks' => $dataQualityChecks,
             'importMapping' => $importGeoSalesRepMappings,
-            //'distinctClientoutputId' => $dataQualityChecksDistinctClientoutputId,
             'nbrOfWarningsByClientoutputId' => $nbrOfWarningsByClientoutputId,
             'totalNbrOfWarnings' => $totalNbrOfWarnings,
+            'confirmForm' => $confirmImportMappingForm->createView(),
         ));
     }
 
 
-    /**
-     * @Route("/gsrm/loaded", name="gsrm_loaded")
-     */
-    public function loadAction()
-    {
-        // ----------------------------------------------------------------------
-        // Delete
-        $em = $this->getDoctrine()->getManager();
-        $currentMappingRepository = $em->getRepository('AppBundle:GsrmCurrentMapping');
-        $importMappingRepository = $em->getRepository('AppBundle:GsrmImportMapping');
 
-        $distinctClientoutputIdInImportMapping = $importMappingRepository->getDistinctClientOutputId();
-        $nbrDistinctImportClientoutputid = count($distinctClientoutputIdInImportMapping);
-
-        for ($row = 0; $row < $nbrDistinctImportClientoutputid; $row++) {
-
-            $currentImportClientoutputid = $distinctClientoutputIdInImportMapping[$row]['clientOutputId']; // Current Client_output_id
-
-            while ($currentMappingRepository->findOneBy(array('clientOutputId' => $currentImportClientoutputid))) {
-                $itemsToRemove = $currentMappingRepository->findOneBy(array('clientOutputId' => $currentImportClientoutputid));
-                $em->remove($itemsToRemove);
-                $em->flush();
-            }
-        }
-
-        // ----------------------------------------------------------------------
-        // Add values
-        $em = $this->getDoctrine()->getManager();
-        $currentMappingRepository = $em->getRepository('AppBundle:GsrmCurrentMapping');
-        $importMappingRepository = $em->getRepository('AppBundle:GsrmImportMapping');
-
-        $importGeoSalesRepMappings = $importMappingRepository->findAll();
-
-        foreach ($importGeoSalesRepMappings as $mapping) {
-            $geoSalesRep = new GsrmCurrentMapping();
-            $geoSalesRep->setClientOutputId($mapping->getClientOutputId());
-            $geoSalesRep->setVersionGeoStructureCode($mapping->getVersionGeoStructureCode());
-            $geoSalesRep->setGeoTeam($mapping->getGeoTeam());
-            $geoSalesRep->setGeoLevelNumber($mapping->getGeoLevelNumber());
-            $geoSalesRep->setGeoValue($mapping->getGeoValue());
-            $geoSalesRep->setSrFirstName($mapping->getSrFirstName());
-            $geoSalesRep->setSrLastName($mapping->getSrLastName());
-            $geoSalesRep->setSrEmail($mapping->getSrEmail());
-            $em->persist($geoSalesRep);
-        }
-
-        $em->flush();
-
-        return $this->render('GSRM/loaded.html.twig');
-    }
 
 
     /**
@@ -693,8 +728,6 @@ class GeoSalesRepMappingController extends Controller
      */
     public function viewMonitoringAction($id)
     {
-
-
         return new Response("On affichera ici un écran avec le monitoring choisi par l'id : ".$id);
     }
 
@@ -704,8 +737,6 @@ class GeoSalesRepMappingController extends Controller
      */
     public function testAction()
     {
-
-
         return new Response("On affichera ici un écran avec la vue du mapping actuel pour le ClientOutputID : ");
     }
 
@@ -714,8 +745,6 @@ class GeoSalesRepMappingController extends Controller
      */
     public function verifAction()
     {
-
-
       return new Response("On affichera ici un écran avec la vue du mapping actuel pour le ClientOutputID : ");
     }
 
