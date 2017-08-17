@@ -39,8 +39,8 @@ class GeoSalesRepMappingController extends Controller
         $importGeoSalesRepFile = new GsrmImportMappingFile();
         $importGeoSalesRepForm = $this->createForm(GsrmImportMappingFileType::class, $importGeoSalesRepFile);
 
-        if ($request->isMethod('POST') && $importGeoSalesRepForm->handleRequest($request)->isValid()) {
-
+        if ($request->isMethod('POST') && $importGeoSalesRepForm->handleRequest($request)->isValid())
+        {
             $currentLoadDate = date('Y-m-d H:i:s');
 
             $GeoSalesRepMappingFileFolder = $this->getParameter('geosalesrep_csvfile_folder');
