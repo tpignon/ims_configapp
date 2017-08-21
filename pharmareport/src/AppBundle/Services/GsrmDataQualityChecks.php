@@ -21,19 +21,19 @@ class GsrmDataQualityChecks
             if (count($distinctVersionGeoStructureCodeInImportMapping) > '1')
             {
                 $dataQualityChecks = array(
-                    'error_message' => 'Version_geo_structure_code must be unique for one ClientoutputId. ',
+                    'error_message' => 'Version_geo_structure_code must be unique for one ClientoutputId.',
                     'client_output_id' => $currentClientoutputid,
                     'distinct_version_geo_structure_code' => $distinctVersionGeoStructureCodeInImportMapping
                 );
             }
 
             // Check if version_geo_structure_code has been changed
-            if ($distinctVersionGeoStructureCodeInImportMapping !== $distinctVersionGeoStructureCodeInCurrentMapping)
+            if (count($distinctVersionGeoStructureCodeInCurrentMapping) != 0 and $distinctVersionGeoStructureCodeInImportMapping[0]['versionGeoStructureCode'] !== $distinctVersionGeoStructureCodeInCurrentMapping[0]['versionGeoStructureCode'])
             {
                 $dataQualityChecks[] = array(
                     'client_output_id' => $currentClientoutputid,
                     'status' => 'WARNING',
-                    'info' => 'version_geo_structure_code: the old one "' . $distinctVersionGeoStructureCodeInCurrentMapping[0]['versionGeoStructureCode'] . '" will be changed by the new one "' . $distinctVersionGeoStructureCodeInImportMapping[0]['versionGeoStructureCode'] . '".'
+                    'info' => 'Version_geo_structure_code will be changed by "' . $distinctVersionGeoStructureCodeInImportMapping[0]['versionGeoStructureCode'] . '" (instead of "' . $distinctVersionGeoStructureCodeInCurrentMapping[0]['versionGeoStructureCode'] . '").'
                 );
             }
         }

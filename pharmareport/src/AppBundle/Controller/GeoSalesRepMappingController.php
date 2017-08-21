@@ -123,16 +123,15 @@ class GeoSalesRepMappingController extends Controller
             // --------------------------------------------------------------
             // Data quality checks (DQC)
             // --------------------------------------------------------------
-            /*
+
             $importMappingRepository = $em->getRepository('AppBundle:GsrmImportMapping');
             $currentMappingRepository = $em->getRepository('AppBundle:GsrmCurrentMapping');
             $DwhDimGeoSalesRepRepository = $em->getRepository('AppBundle:DwhDimGeoSalesRep');
             $dataQualityChecksService = $this->get('GsrmDataQualityChecks');
-            */
+
             //$dataQualityChecks = array();
 
             // DQC on version_geo_structure_code
-            /*
             $DQCOnVersionGeoStructureCode = $dataQualityChecksService->onVersionGeoStructureCode($importMappingRepository, $currentMappingRepository);
             if (count($DQCOnVersionGeoStructureCode) != 0)
             {
@@ -160,7 +159,7 @@ class GeoSalesRepMappingController extends Controller
                     }
                 }
             }
-            */
+
 
             // DQC on mappings
             /*
@@ -181,7 +180,7 @@ class GeoSalesRepMappingController extends Controller
 
             }*/
 
-            //$em->flush();
+            $em->flush();
 
 
 
@@ -548,7 +547,6 @@ class GeoSalesRepMappingController extends Controller
         // ================================================================================================================
         // Export Template
         // ================================================================================================================
-
         $geoSalesRepExportTemplateFile = new GsrmExportMappingTemplateFile();
         $geoSalesRepExportTemplateForm = $this->createForm(GsrmExportMappingTemplateFileType::class, $geoSalesRepExportTemplateFile);
 
@@ -565,7 +563,6 @@ class GeoSalesRepMappingController extends Controller
         // ================================================================================================================
         // View current mapping
         // ================================================================================================================
-
         $geoSalesRepViewMapping = new GsrmViewCurrentMapping();
         $geoSalesRepViewMappingForm = $this->createForm(GsrmViewCurrentMappingType::class, $geoSalesRepViewMapping);
 
@@ -582,7 +579,6 @@ class GeoSalesRepMappingController extends Controller
         // ================================================================================================================
         // General return
         // ================================================================================================================
-
         return $this->render('GSRM/index.html.twig', array(
             'importGeoSalesRepForm' => $importGeoSalesRepForm->createView(),
             'GeoSalesRepExportTemplateForm' => $geoSalesRepExportTemplateForm->createView(),

@@ -77,14 +77,6 @@ class GsrmDataQualityChecks
     /**
      * @return string
      */
-    public function getAnalyzedField()
-    {
-        return $this->analyzedField;
-    }
-
-    /**
-     * @return string
-     */
     public function getStatus()
     {
         return $this->status;
@@ -116,17 +108,6 @@ class GsrmDataQualityChecks
     public function setLoadDate($loadDate)
     {
         $this->loadDate = $loadDate;
-
-        return $this;
-    }
-
-    /**
-     * @param string $analyzedField
-     * @return \AppBundle\Entity\GsrmDataQualityChecks
-     */
-    public function setAnalyzedField($analyzedField)
-    {
-        $this->analyzedField = $analyzedField;
 
         return $this;
     }

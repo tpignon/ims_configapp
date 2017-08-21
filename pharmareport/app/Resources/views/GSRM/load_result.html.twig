@@ -23,7 +23,7 @@
                 {% endif %}
                 {% for element in dataQualityChecks %}
                     {% if element.clientOutputId == item.clientoutputId and element.status == 'WARNING' %}
-                        <li>{{ element.analyzedField }} : {{ element.info }}</li>
+                        <li>{{ element.info }}</li>
                     {% endif %}
                 {% endfor %}
                 </ul>
@@ -39,7 +39,7 @@
                 {% endif %}
                 {% for element in dataQualityChecks %}
                     {% if element.clientOutputId == item.clientoutputId and element.status == 'WARNING' %}
-                        <li>{{ element.analyzedField }} : {{ element.info }}</li>
+                        <li>{{ element.info }}</li>
                     {% endif %}
                 {% endfor %}
                 </ul>
