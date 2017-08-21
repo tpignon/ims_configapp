@@ -123,12 +123,12 @@ class GeoSalesRepMappingController extends Controller
             // --------------------------------------------------------------
             // Data quality checks (DQC)
             // --------------------------------------------------------------
-
+            /*
             $importMappingRepository = $em->getRepository('AppBundle:GsrmImportMapping');
             $currentMappingRepository = $em->getRepository('AppBundle:GsrmCurrentMapping');
             $DwhDimGeoSalesRepRepository = $em->getRepository('AppBundle:DwhDimGeoSalesRep');
             $dataQualityChecksService = $this->get('GsrmDataQualityChecks');
-            
+            */
             //$dataQualityChecks = array();
 
             // DQC on version_geo_structure_code
