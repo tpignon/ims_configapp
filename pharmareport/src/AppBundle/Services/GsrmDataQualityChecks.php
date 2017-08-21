@@ -54,31 +54,32 @@ class GsrmDataQualityChecks
 
         // Loop on all import mappings
         foreach($listImportMappingsArray as $importMapping) {
-            $importMappingEntity = $importMappingRepository->find($importMapping['ptk']);
-            $importMappingClientoutputId = $importMapping['clientOutputId'];
-            $importMappingGeoLevel = $importMapping['geoLevelNumber'];
-            $importMappingGeoValue = $importMapping['geoValue'];
-            $importMappingGeoTeam = $importMapping['geoTeam'];
-            $importMappingSalesRepFirstName = $importMapping['srFirstName'];
-            $importMappingSalesRepLastName = $importMapping['srLastName'];
+            $importMappingClientoutputId = $importMapping->getClientOutputId();
+            $importMappingGeoLevel = $importMapping->getGeoLevelNumber();
+            $importMappingGeoValue = $importMapping->getGeoValue();
+            $importMappingGeoTeam = $importMapping->getGeoTeam();
+            $importMappingSalesRepFirstName = $importMapping->getSrFirstName();
+            $importMappingSalesRepLastName = $importMapping->getSrLastName();
 
             // Status
             $statusNoChangedMapping = $currentMappingRepository->getNoChangedMapping($importMappingClientoutputId, $importMappingGeoLevel, $importMappingGeoValue, $importMappingGeoTeam, $importMappingSalesRepFirstName, $importMappingSalesRepLastName);
             $statusChangedMapping = $currentMappingRepository->getChangedMapping($importMappingClientoutputId, $importMappingGeoLevel, $importMappingGeoValue, $importMappingGeoTeam);
             if (count($statusNoChangedMapping) > 0) {
-                $importMappingEntity->setMappingStatus('NO CHANGE');
-                $em->persist($importMappingEntity);
+                $importMapping->setMappingStatus('UNCHANGED');
+                $em->persist($importMapping);
             } elseif (count($statusChangedMapping) > 0) {
-                $importMappingEntity->setMappingStatus('CHANGED MAPPING');
-                $em->persist($importMappingEntity);
+                $importMapping->setMappingStatus('CHANGED');
+                $em->persist($importMapping);
+                $currentMappingSalesRepFirstName = $statusChangedMapping[0]['srFirstName'];
+                $currentMappingSalesRepLastName = $statusChangedMapping[0]['srLastName'];
                 $dataQualityChecks[] = array(
                     'client_output_id' => $importMappingClientoutputId,
                     'status' => 'CHANGED MAPPING',
-                    'info' => 'SalesRep will be changed for geo "' . $importMappingGeoValue . '" (level ' . $importMappingGeoLevel . ') and team "' . $importMappingGeoTeam . '" ==> ' . $importMappingSalesRepFirstName . ' ' . $importMappingSalesRepLastName . ' (instead of ' . $statusChangedMapping['srFirstName'] . ' ' . $statusChangedMapping['srLastName'] . ').'
+                    'info' => 'SalesRep will be changed for geo "' . $importMappingGeoValue . '" (level ' . $importMappingGeoLevel . ') and for team "' . $importMappingGeoTeam . '" ==> ' . $importMappingSalesRepFirstName . ' ' . $importMappingSalesRepLastName . ' (instead of ' . $currentMappingSalesRepFirstName . ' ' . $currentMappingSalesRepLastName . ').'
                 );
             } else {
-                $importMappingEntity->setMappingStatus('NEW MAPPING');
-                $em->persist($importMappingEntity);
+                $importMapping->setMappingStatus('NEW');
+                $em->persist($importMapping);
                 $dataQualityChecks[] = array(
                     'client_output_id' => $importMappingClientoutputId,
                     'status' => 'NEW MAPPING',

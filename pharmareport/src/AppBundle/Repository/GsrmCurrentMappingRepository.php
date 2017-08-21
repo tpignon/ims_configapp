@@ -149,7 +149,7 @@ class GsrmCurrentMappingRepository extends EntityRepository
         $qb = $this->createQueryBuilder('c');
 
         $qb
-          ->select('c.ptk, c.clientOutputId, c.srFirstName, c.setSrLastName')
+          ->select('c.ptk, c.clientOutputId, c.srFirstName, c.srLastName')
           ->where('c.clientOutputId = :id')
           ->setParameter('id', $clientOutputId)
           ->andWhere('c.geoLevelNumber = :level')

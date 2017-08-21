@@ -149,20 +149,11 @@ class GeoSalesRepMappingController extends Controller
                         $dataQualityCheck->setStatus($DQCOnVersionGeoStructureCode[$row]['status']);
                         $dataQualityCheck->setInfo($DQCOnVersionGeoStructureCode[$row]['info']);
                         $em->persist($dataQualityCheck);
-
-                        //$dataQualityChecks[] = array(
-                            //'client_output_id' => $DQCOnVersionGeoStructureCode[$row]['client_output_id'],
-                            //'status' => $DQCOnVersionGeoStructureCode[$row]['status'],
-                            //'info' => $DQCOnVersionGeoStructureCode[$row]['info']
-                        //);
-
                     }
                 }
             }
 
-
             // DQC on mappings
-            /*
             $DQCOnMappings = $dataQualityChecksService->onMappings($importMappingRepository, $currentMappingRepository, $DwhDimGeoSalesRepRepository, $em);
             for ($row = 0; $row < count($DQCOnMappings); $row++) {
                 $dataQualityCheck = new GsrmDataQualityChecks();
@@ -178,7 +169,7 @@ class GeoSalesRepMappingController extends Controller
                     //'info' => $DQCOnMappings[$row]['info']
                 //);
 
-            }*/
+            }
 
             $em->flush();
 
