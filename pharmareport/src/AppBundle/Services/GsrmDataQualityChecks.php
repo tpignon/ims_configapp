@@ -108,12 +108,6 @@ class GsrmDataQualityChecks
     }
 
 
-    public function onMappings($importMappingRepository, $currentMappingRepository, $DwhDimGeoSalesRepRepository)
-    {
-
-    }
-
-
     // ========================================================================================================
     // TESTS
     // ========================================================================================================
