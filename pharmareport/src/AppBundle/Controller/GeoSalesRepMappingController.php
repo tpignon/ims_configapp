@@ -41,12 +41,14 @@ class GeoSalesRepMappingController extends Controller
 
         if ($request->isMethod('POST') && $importGeoSalesRepForm->handleRequest($request)->isValid())
         {
+            // --------------------------------------------------------------
+            // Import mappings into an array
+            // --------------------------------------------------------------
             $currentLoadDate = date('Y-m-d H:i:s');
 
             $GeoSalesRepMappingFileFolder = $this->getParameter('geosalesrep_csvfile_folder');
             $GeoSalesRepMappingFileName = $this->getParameter('geosalesrep_csvfile_filename');
             $GeoSalesRepMappingFile = $GeoSalesRepMappingFileFolder . '/' . $GeoSalesRepMappingFileName;
-
             $file = $importGeoSalesRepFile->getGsrmImportMappingFile();
             $file->move($GeoSalesRepMappingFileFolder, $GeoSalesRepMappingFileName);
 
@@ -74,10 +76,9 @@ class GeoSalesRepMappingController extends Controller
 
             $em = $this->getDoctrine()->getManager();
 
-            // ------------------------------------------------------
-            // Insert into MySQL DB (table gsrm_import_mapping)
-            // ------------------------------------------------------
-
+            // --------------------------------------------------------------
+            // Insert mappings into MySQL DB, table "gsrm_import_mapping"
+            // --------------------------------------------------------------
             for ($row = 1; $row < count($geosalesrepMappings); $row++) // Start at 1 because the first row contains headers
             {
                 $importGeoSalesRep = new GsrmImportMapping();
@@ -119,29 +120,81 @@ class GeoSalesRepMappingController extends Controller
             $connection->executeUpdate($platform->getTruncateTableSQL('gsrm_import_mapping', true));
             $em->flush();
 
-            // ------------------------------------------------------------------------------------------------------------------
-            // GeoSalesRep Load Result - Data quality checks
-            // ------------------------------------------------------------------------------------------------------------------
+            // --------------------------------------------------------------
+            // Data quality checks (DQC)
+            // --------------------------------------------------------------
 
-            // 0 - General
-            //$em = $this->getDoctrine()->getManager();
-            $currentMappingRepository = $em->getRepository('AppBundle:GsrmCurrentMapping');
             $importMappingRepository = $em->getRepository('AppBundle:GsrmImportMapping');
+            $currentMappingRepository = $em->getRepository('AppBundle:GsrmCurrentMapping');
             $DwhDimGeoSalesRepRepository = $em->getRepository('AppBundle:DwhDimGeoSalesRep');
+            $dataQualityChecksService = $this->get('GsrmDataQualityChecks');
+            
+            //$dataQualityChecks = array();
 
+            // DQC on version_geo_structure_code
+            /*
+            $DQCOnVersionGeoStructureCode = $dataQualityChecksService->onVersionGeoStructureCode($importMappingRepository, $currentMappingRepository);
+            if (count($DQCOnVersionGeoStructureCode) != 0)
+            {
+                if (array_key_exists('error_message', $DQCOnVersionGeoStructureCode)) {
+                    return $this->render('GSRM/error_version_geo_structure_code.html.twig', array(
+                        'error_message' => $DQCOnVersionGeoStructureCode['error_message'],
+                        'client_output_id' => $DQCOnVersionGeoStructureCode['client_output_id'],
+                        'distinct_version_geo_structure_code' => $DQCOnVersionGeoStructureCode['distinct_version_geo_structure_code']
+                    ));
+                } else {
+                    for ($row = 0; $row < count($DQCOnVersionGeoStructureCode); $row++) {
+                        $dataQualityCheck = new GsrmDataQualityChecks();
+                        $dataQualityCheck->setClientOutputId($DQCOnVersionGeoStructureCode[$row]['client_output_id']);
+                        $dataQualityCheck->setLoadDate($currentLoadDate);
+                        $dataQualityCheck->setStatus($DQCOnVersionGeoStructureCode[$row]['status']);
+                        $dataQualityCheck->setInfo($DQCOnVersionGeoStructureCode[$row]['info']);
+                        $em->persist($dataQualityCheck);
+
+                        //$dataQualityChecks[] = array(
+                            //'client_output_id' => $DQCOnVersionGeoStructureCode[$row]['client_output_id'],
+                            //'status' => $DQCOnVersionGeoStructureCode[$row]['status'],
+                            //'info' => $DQCOnVersionGeoStructureCode[$row]['info']
+                        //);
+
+                    }
+                }
+            }
+            */
+
+            // DQC on mappings
+            /*
+            $DQCOnMappings = $dataQualityChecksService->onMappings($importMappingRepository, $currentMappingRepository, $DwhDimGeoSalesRepRepository, $em);
+            for ($row = 0; $row < count($DQCOnMappings); $row++) {
+                $dataQualityCheck = new GsrmDataQualityChecks();
+                $dataQualityCheck->setClientOutputId($DQCOnMappings[$row]['client_output_id']);
+                $dataQualityCheck->setLoadDate($currentLoadDate);
+                $dataQualityCheck->setStatus($DQCOnMappings[$row]['status']);
+                $dataQualityCheck->setInfo($DQCOnMappings[$row]['info']);
+                $em->persist($dataQualityCheck);
+
+                //$dataQualityChecks[] = array(
+                    //'client_output_id' => $DQCOnMappings[$row]['client_output_id'],
+                    //'status' => $DQCOnMappings[$row]['status'],
+                    //'info' => $DQCOnMappings[$row]['info']
+                //);
+
+            }*/
+
+            //$em->flush();
+
+
+
+            //-------------------------
+            /*
+            // Loop on client_output_id
             $distinctClientoutputidInImportMapping = $importMappingRepository->getDistinctClientOutputId();
-
-            // Loop on Client_Output_Id
-            for ($row = 0; $row < count($distinctClientoutputidInImportMapping); $row++) {
-
+            for ($row = 0; $row < count($distinctClientoutputidInImportMapping); $row++)
+            {
                 $currentClientoutputid = $distinctClientoutputidInImportMapping[$row]['clientOutputId']; // Current Client_output_id
-
-                // ---------------------------------------
-                // 1 - version_geo_structure_code
-                // ---------------------------------------
+                // Check if version_geo_structure_code is unique
                 $distinctVersionGeoStructureCodeInImportMapping = $importMappingRepository->getDistinctVersionGeoStructureCode($currentClientoutputid);
                 $distinctVersionGeoStructureCodeInCurrentMapping = $currentMappingRepository->getDistinctVersionGeoStructureCode($currentClientoutputid);
-
                 if (count($distinctVersionGeoStructureCodeInImportMapping) > '1')
                 {
                    return $this->render('GSRM/error_version_geo_structure_code.html.twig', array(
@@ -154,15 +207,6 @@ class GeoSalesRepMappingController extends Controller
                 // Check if first mapping for this client_output_id
                 if (count($distinctVersionGeoStructureCodeInCurrentMapping) == 0)
                 {
-                    /*
-                    $dataQualityCheck = new GsrmDataQualityChecks();
-                    $dataQualityCheck->setClientOutputId($currentClientoutputid);
-                    $dataQualityCheck->setLoadDate($currentLoadDate);
-                    $dataQualityCheck->setAnalyzedField('version_geo_structure_code');
-                    $dataQualityCheck->setStatus('CORRECT');
-                    $dataQualityCheck->setInfo('No "Geo - Sales Rep" mapping before, this is the first one.');
-                    $em->persist($dataQualityCheck);
-                    */
 
                     // ---------------------------------------
                     // 3 - geoLevelNumber
@@ -492,6 +536,7 @@ class GeoSalesRepMappingController extends Controller
                 }
             }
             $em->flush();
+            */
 
             // Import Form return
             return $this->redirectToRoute('gsrm_viewLoadResult', array(

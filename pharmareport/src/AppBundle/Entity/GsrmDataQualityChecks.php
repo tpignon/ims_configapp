@@ -38,13 +38,6 @@ class GsrmDataQualityChecks
     /**
      * @var string
      *
-     * @ORM\Column(name="analyzed_field", type="string", length=255, nullable=true)
-     */
-    private $analyzedField;
-
-    /**
-     * @var string
-     *
      * @ORM\Column(name="status", type="string", length=255, nullable=true)
      */
     private $status;

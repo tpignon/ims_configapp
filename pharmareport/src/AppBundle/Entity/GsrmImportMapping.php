@@ -109,6 +109,11 @@ class GsrmImportMapping
      */
     private $srEmail;
 
+    /**
+     * @ORM\Column(name="mapping_status", type="string", length=255, nullable=true)
+     */
+    private $mappingStatus;
+
 
 
     /**
@@ -199,6 +204,16 @@ class GsrmImportMapping
     public function getSrEmail()
     {
         return $this->srEmail;
+    }
+
+    /**
+     * Get mappingStatus
+     *
+     * @return string
+     */
+    public function getMappingStatus()
+    {
+        return $this->mappingStatus;
     }
 
     /**
@@ -311,6 +326,20 @@ class GsrmImportMapping
         $this->srEmail = $srEmail;
 
         //return $this;
+    }
+
+    /**
+     * Set mappingStatus
+     *
+     * @param string $mappingStatus
+     *
+     * @return GeoSalesRep
+     */
+    public function setMappingStatus($mappingStatus)
+    {
+        $this->mappingStatus = $mappingStatus;
+
+        return $this;
     }
 
     public function toArray()

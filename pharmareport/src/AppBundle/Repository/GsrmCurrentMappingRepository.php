@@ -114,4 +114,56 @@ class GsrmCurrentMappingRepository extends EntityRepository
           ->getArrayResult()
         ;
     }
+
+
+    public function getNoChangedMapping($clientOutputId, $geoLevel, $geoValue, $geoTeam, $srFirstName, $srLastName)
+    {
+        $qb = $this->createQueryBuilder('c');
+
+        $qb
+          ->select('c.ptk, c.clientOutputId')
+          ->where('c.clientOutputId = :id')
+          ->setParameter('id', $clientOutputId)
+          ->andWhere('c.geoLevelNumber = :level')
+          ->setParameter('level', $geoLevel)
+          ->andWhere('c.geoValue = :value')
+          ->setParameter('value', $geoValue)
+          ->andWhere('c.geoTeam = :team')
+          ->setParameter('team', $geoTeam)
+          ->andWhere('c.srFirstName = :firstName')
+          ->setParameter('firstName', $srFirstName)
+          ->andWhere('c.srLastName = :lastName')
+          ->setParameter('lastName', $srLastName)
+          ->distinct()
+        ;
+
+        return $qb
+          ->getQuery()
+          ->getArrayResult()
+        ;
+    }
+
+
+    public function getChangedMapping($clientOutputId, $geoLevel, $geoValue, $geoTeam)
+    {
+        $qb = $this->createQueryBuilder('c');
+
+        $qb
+          ->select('c.ptk, c.clientOutputId, c.srFirstName, c.setSrLastName')
+          ->where('c.clientOutputId = :id')
+          ->setParameter('id', $clientOutputId)
+          ->andWhere('c.geoLevelNumber = :level')
+          ->setParameter('level', $geoLevel)
+          ->andWhere('c.geoValue = :value')
+          ->setParameter('value', $geoValue)
+          ->andWhere('c.geoTeam = :team')
+          ->setParameter('team', $geoTeam)
+          ->distinct()
+        ;
+
+        return $qb
+          ->getQuery()
+          ->getArrayResult()
+        ;
+    }
 }

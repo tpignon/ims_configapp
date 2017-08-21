@@ -24,3 +24,7 @@ services:
         class: AppBundle\Services\GsrmImportMapping
     GsrmExportMapping:
         class: AppBundle\Services\GsrmExportMapping
+    GsrmDataQualityChecks:
+        class: AppBundle\Services\GsrmDataQualityChecks
+        arguments: 
+          - '@templating'
