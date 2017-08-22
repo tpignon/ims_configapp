@@ -133,4 +133,93 @@ class GsrmImportMappingRepository extends EntityRepository
           ->getArrayResult()
         ;
     }
+
+
+    public function getNbrOfMappings($clientOutputId)
+    {
+        $qb = $this->createQueryBuilder('i');
+
+        $qb
+          ->select('count(i.ptk)')
+          ->where('i.clientOutputId = :id')
+          ->setParameter('id', $clientOutputId)
+        ;
+
+        return $qb
+          ->getQuery()
+          ->getSingleScalarResult()
+        ;
+    }
+
+
+    public function getNbrOfChangedMappings($clientOutputId)
+    {
+        $qb = $this->createQueryBuilder('i');
+
+        $qb
+          ->select('count(i.mappingStatus)')
+          ->where('i.clientOutputId = :id')
+          ->setParameter('id', $clientOutputId)
+          ->andwhere('i.mappingStatus = :status')
+          ->setParameter('status', 'CHANGED')
+        ;
+
+        return $qb
+          ->getQuery()
+          ->getSingleScalarResult()
+        ;
+
+        /*$qb
+          ->select('count(d.status)')
+          ->where('d.loadDate = :loadDateParam')
+          ->setParameter('loadDateParam', $loadDate)
+          ->andwhere('d.clientOutputId = :clientoutputIdParam')
+          ->setParameter('clientoutputIdParam', $clientoutputId)
+          ->andWhere('d.status = :statusParam')
+          ->setParameter('statusParam', 'REMOVED MAPPING')
+        ;
+
+        return $qb
+          ->getQuery()
+          ->getSingleScalarResult()
+        ;*/
+    }
+
+
+    public function getNbrOfNewMappings($clientOutputId)
+    {
+        $qb = $this->createQueryBuilder('i');
+
+        $qb
+          ->select('count(i.mappingStatus)')
+          ->where('i.clientOutputId = :id')
+          ->setParameter('id', $clientOutputId)
+          ->andwhere('i.mappingStatus = :status')
+          ->setParameter('status', 'NEW')
+        ;
+
+        return $qb
+          ->getQuery()
+          ->getSingleScalarResult()
+        ;
+    }
+
+
+    public function getNbrOfUnchangedMappings($clientOutputId)
+    {
+        $qb = $this->createQueryBuilder('i');
+
+        $qb
+          ->select('count(i.mappingStatus)')
+          ->where('i.clientOutputId = :id')
+          ->setParameter('id', $clientOutputId)
+          ->andwhere('i.mappingStatus = :status')
+          ->setParameter('status', 'UNCHANGED')
+        ;
+
+        return $qb
+          ->getQuery()
+          ->getSingleScalarResult()
+        ;
+    }
 }

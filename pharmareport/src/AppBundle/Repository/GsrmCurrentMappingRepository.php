@@ -7,14 +7,14 @@ use Doctrine\ORM\EntityRepository;
 class GsrmCurrentMappingRepository extends EntityRepository
 {
 
-    public function getNumberOfMappings($clientoutputid)
+    public function getNbrOfMappings($clientoutputid)
     {
         $qb = $this->createQueryBuilder('c');
 
         $qb
-            ->select('count(c.ptk)')
-            ->where('c.clientOutputId = :id')
-            ->setParameter('id', $clientoutputid)
+          ->select('count(c.ptk)')
+          ->where('c.clientOutputId = :id')
+          ->setParameter('id', $clientoutputid)
         ;
 
         return $qb

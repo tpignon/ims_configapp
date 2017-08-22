@@ -172,68 +172,6 @@ class GsrmDataQualityChecks
     }
 
 
-    public function multidimensional_array_diff($array1, $array2)
-    {
-        $result = array();
-
-
-
-        foreach ($array2 as $key => $second)
-        {
-            foreach ($array1 as $key => $first)
-            {
-                foreach ($first as $first_value)
-                {
-                    foreach ($second as $second_value)
-                    {
-                        if ($first_value == $second_value)
-                        {
-                            $true = true;
-                            break;
-                        }
-                    }
-                    if (!isset($true))
-                    {
-                        $result[$key][] = $first_value;
-                    }
-                    unset($true);
-                }
-            }
-        }
-        // ------------------
-        foreach ($array2 as $key => $second)
-        {
-            foreach ($array1 as $key => $first)
-            {
-                if (isset($array2[$key]))
-                {
-                    foreach ($first as $first_value)
-                    {
-                        foreach ($second as $second_value)
-                        {
-                            if ($first_value == $second_value)
-                            {
-                                $true = true;
-                                break;
-                            }
-                        }
-                        if (!isset($true))
-                        {
-                            $result[$key][] = $first_value;
-                        }
-                        unset($true);
-                    }
-                }
-                else
-                {
-                    $result[$key] = $first;
-                }
-            }
-        }
-        return $result;
-    }
-
-
     // ========================================================================================================
     // TESTS
     // ========================================================================================================

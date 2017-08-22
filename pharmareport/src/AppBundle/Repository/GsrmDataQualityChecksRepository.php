@@ -27,10 +27,26 @@ class GsrmDataQualityChecksRepository extends \Doctrine\ORM\EntityRepository
         ;
     }
 
-    public function getWarningsForOneClientoutputId($loadDate, $clientoutputId)
+
+    public function getNbrOfWarnings($loadDate, $clientoutputId)
     {
         $qb = $this->createQueryBuilder('d');
 
+        $qb
+          ->select('count(d.status)')
+          ->where('d.loadDate = :loadDateParam')
+          ->setParameter('loadDateParam', $loadDate)
+          ->andwhere('d.clientOutputId = :clientoutputIdParam')
+          ->setParameter('clientoutputIdParam', $clientoutputId)
+          ->andWhere('d.status = :statusParam')
+          ->setParameter('statusParam', 'WARNING')
+        ;
+
+        return $qb
+          ->getQuery()
+          ->getSingleScalarResult()
+        ;
+        /*
         $qb
           ->select('d.status')
           ->where('d.loadDate = :loadDateParam')
@@ -44,6 +60,28 @@ class GsrmDataQualityChecksRepository extends \Doctrine\ORM\EntityRepository
         return $qb
           ->getQuery()
           ->getArrayResult()
+        ;
+        */
+    }
+
+
+    public function getNbrOfRemovedMappings($loadDate, $clientoutputId)
+    {
+        $qb = $this->createQueryBuilder('d');
+
+        $qb
+          ->select('count(d.status)')
+          ->where('d.loadDate = :loadDateParam')
+          ->setParameter('loadDateParam', $loadDate)
+          ->andwhere('d.clientOutputId = :clientoutputIdParam')
+          ->setParameter('clientoutputIdParam', $clientoutputId)
+          ->andWhere('d.status = :statusParam')
+          ->setParameter('statusParam', 'REMOVED MAPPING')
+        ;
+
+        return $qb
+          ->getQuery()
+          ->getSingleScalarResult()
         ;
     }
 }

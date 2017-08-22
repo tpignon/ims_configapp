@@ -7,9 +7,19 @@
 {% block body %}
 
     <div class="jumbotron">
-        {% if totalNbrOfWarnings > 1 %}
-            <h3><strong>Data Quality Checks : {{ totalNbrOfWarnings }} warnings</strong></h3><br />
-            {% for item in nbrOfWarningsByClientoutputId %}
+        {% if overviewStatus.total_nbr_of_warnings > 1 %}
+            <h3><strong>Data Quality Checks</strong></h3>
+            <br />
+            <h4>Overall status:</h4>
+            <ul>
+                <li><strong>{{ overviewStatus.total_nbr_of_warnings }} warning(s)</strong></li>
+                <li>{{ overviewStatus.total_nbr_of_removed_mappings }} mapping(s) will be removed</li>
+                <li>{{ overviewStatus.total_nbr_of_changed_mappings }} mapping(s) will be changed</li>
+                <li>{{ overviewStatus.total_nbr_of_new_mappings }} new mapping(s)</li>
+                <li>{{ overviewStatus.total_nbr_of_unchanged_mappings }} unchanged mapping(s)</li>
+            </ul>
+            <br />
+            {% for item in statusByClientoutputId %}
                 {% if item.nbr_of_warnings == 1 %}
                     <h4>ClientoutputId <strong>{{ item.clientoutputId }}</strong> : <strong>{{ item.nbr_of_warnings }} warning</strong></h4>
                 {% elseif item.nbr_of_warnings > 1 %}
@@ -30,8 +40,18 @@
                 <br />
             {% endfor %}
         {% else %}
-            <h3><strong>Data Quality Checks : {{ totalNbrOfWarnings }} warning</strong></h3><br />
-            {% for item in nbrOfWarningsByClientoutputId %}
+            <h3><strong>Data Quality Checks</strong></h3>
+            <br />
+            <h4>Overall status:</h4>
+            <ul>
+                <li><strong>{{ overviewStatus.total_nbr_of_warnings }} warning(s)</strong></li>
+                <li>{{ overviewStatus.total_nbr_of_removed_mappings }} mapping(s) will be removed</li>
+                <li>{{ overviewStatus.total_nbr_of_changed_mappings }} mapping(s) will be changed</li>
+                <li>{{ overviewStatus.total_nbr_of_new_mappings }} new mapping(s)</li>
+                <li>{{ overviewStatus.total_nbr_of_unchanged_mappings }} unchanged mapping(s)</li>
+            </ul>
+            <br />
+            {% for item in statusByClientoutputId %}
                 <h4>ClientoutputId <strong>{{ item.clientoutputId }}</strong> : <strong>{{ item.nbr_of_warnings }} warning</strong></h4>
                 <ul>
                 {% if item.nbr_of_current_mappings == 0 %}

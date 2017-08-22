@@ -164,267 +164,6 @@ class GeoSalesRepMappingController extends Controller
 
             $em->flush();
 
-
-
-            //-------------------------
-            /*
-            // Loop on client_output_id
-            $distinctClientoutputidInImportMapping = $importMappingRepository->getDistinctClientOutputId();
-            for ($row = 0; $row < count($distinctClientoutputidInImportMapping); $row++)
-            {
-                $currentClientoutputid = $distinctClientoutputidInImportMapping[$row]['clientOutputId']; // Current Client_output_id
-
-                else {
-                    // ---------------------------------------
-                    // 2 - geoTeam
-                    // ---------------------------------------
-                    $distinctGeoTeamInImportMapping = $importMappingRepository->getDistinctValuesInColumn('geoTeam', $currentClientoutputid);
-                    $distinctGeoTeamInCurrentMapping = $currentMappingRepository->getDistinctValuesInColumn('geoTeam', $currentClientoutputid);
-
-                    $importArray = array(); // Store value in array to be compared
-                    for ($i = 0; $i < count($distinctGeoTeamInImportMapping); $i++) {
-                        $importArray[] = $distinctGeoTeamInImportMapping[$i]['geoTeam'];
-                    }
-
-                    $currentArray = array(); // Store value in array to be compared
-                    for ($u = 0; $u < count($distinctGeoTeamInCurrentMapping); $u++) {
-                        $currentArray[] = $distinctGeoTeamInCurrentMapping[$u]['geoTeam'];
-                    }
-
-                    $comparisonFromImport = array_diff($importArray, $currentArray);
-                    $comparisonFromCurrent = array_diff($currentArray, $importArray);
-
-                    // Check for New and Removed values
-                    if (count($comparisonFromImport) > '0') {
-                        foreach ($comparisonFromImport as $item) {
-                            $dataQualityCheck = new GsrmDataQualityChecks();
-                            $dataQualityCheck->setClientOutputId($currentClientoutputid);
-                            $dataQualityCheck->setLoadDate($currentLoadDate);
-                            $dataQualityCheck->setAnalyzedField('geo_team');
-                            $dataQualityCheck->setStatus('WARNING');
-                            $dataQualityCheck->setInfo('New team (MarketId) "' . $item . '".');
-                            $em->persist($dataQualityCheck);
-                        }
-                    } elseif (count($comparisonFromCurrent) > '0') {
-                        foreach ($comparisonFromCurrent as $item) {
-                            $dataQualityCheck = new GsrmDataQualityChecks();
-                            $dataQualityCheck->setClientOutputId($currentClientoutputid);
-                            $dataQualityCheck->setLoadDate($currentLoadDate);
-                            $dataQualityCheck->setAnalyzedField('geo_team');
-                            $dataQualityCheck->setStatus('WARNING');
-                            $dataQualityCheck->setInfo('Team (MarketId) "' . $item . '" will be removed.');
-                            $em->persist($dataQualityCheck);
-                        }
-                    } else {
-                        $dataQualityCheck = new GsrmDataQualityChecks();
-                        $dataQualityCheck->setClientOutputId($currentClientoutputid);
-                        $dataQualityCheck->setLoadDate($currentLoadDate);
-                        $dataQualityCheck->setAnalyzedField('geo_team');
-                        $dataQualityCheck->setStatus('CORRECT');
-                        $dataQualityCheck->setInfo('No change.');
-                    }
-
-                    $em->persist($dataQualityCheck);
-
-                    // ---------------------------------------
-                    // 3 - geoLevelNumber
-                    // ---------------------------------------
-
-                    $distinctGeoLevelInImportMapping = $importMappingRepository->getDistinctValuesInColumn('geoLevelNumber', $currentClientoutputid);
-                    $distinctGeoLevelInCurrentMapping = $currentMappingRepository->getDistinctValuesInColumn('geoLevelNumber', $currentClientoutputid);
-
-                    $importGeoLevelArray = array(); // Store value in array to be compared
-                    for ($i = 0; $i < count($distinctGeoLevelInImportMapping); $i++) {
-                        $importGeoLevelArray[] = $distinctGeoLevelInImportMapping[$i]['geoLevelNumber'];
-                    }
-
-                    $currentGeoLevelArray = array(); // Store value in array to be compared
-                    for ($u = 0; $u < count($distinctGeoLevelInCurrentMapping); $u++) {
-                        $currentGeoLevelArray[] = $distinctGeoLevelInCurrentMapping[$u]['geoLevelNumber'];
-                    }
-
-                    $comparisonGeoLevelFromImport = array_diff($importGeoLevelArray, $currentGeoLevelArray);
-                    $comparisonGeoLevelFromCurrent = array_diff($currentGeoLevelArray, $importGeoLevelArray);
-
-                    // Check for New and Removed values
-                    if (count($comparisonGeoLevelFromImport) > '0') {
-                        foreach ($comparisonGeoLevelFromImport as $item) {
-                            $dataQualityCheck = new GsrmDataQualityChecks();
-                            $dataQualityCheck->setClientOutputId($currentClientoutputid);
-                            $dataQualityCheck->setLoadDate($currentLoadDate);
-                            $dataQualityCheck->setAnalyzedField('geo_level');
-                            $dataQualityCheck->setStatus('WARNING');
-                            $dataQualityCheck->setInfo('New level "' . $item . '".');
-                            $em->persist($dataQualityCheck);
-                        }
-                    } elseif (count($comparisonGeoLevelFromCurrent) > '0') {
-                        foreach ($comparisonGeoLevelFromCurrent as $item) {
-                            $dataQualityCheck = new GsrmDataQualityChecks();
-                            $dataQualityCheck->setClientOutputId($currentClientoutputid);
-                            $dataQualityCheck->setLoadDate($currentLoadDate);
-                            $dataQualityCheck->setAnalyzedField('geo_level');
-                            $dataQualityCheck->setStatus('WARNING');
-                            $dataQualityCheck->setInfo('Level "' . $item . '" will be removed.');
-                            $em->persist($dataQualityCheck);
-                        }
-                    } else {
-                        $dataQualityCheck = new GsrmDataQualityChecks();
-                        $dataQualityCheck->setClientOutputId($currentClientoutputid);
-                        $dataQualityCheck->setLoadDate($currentLoadDate);
-                        $dataQualityCheck->setAnalyzedField('geo_level');
-                        $dataQualityCheck->setStatus('CORRECT');
-                        $dataQualityCheck->setInfo('No change.');
-                    }
-
-                    $em->persist($dataQualityCheck);
-
-                    // ---------------------------------------
-                    // 4 - geoValue
-                    // ---------------------------------------
-
-                    for ($geoLevelRow = 0; $geoLevelRow < count($importGeoLevelArray); $geoLevelRow++) {
-
-                        $geoLevel = $importGeoLevelArray[$geoLevelRow];
-
-                        $distinctGeoValueInImportMapping = $importMappingRepository->getDistinctGeoName($currentClientoutputid, $geoLevel);
-                        $distinctGeoValueInCurrentMapping = $currentMappingRepository->getDistinctGeoName($currentClientoutputid, $geoLevel);
-                        $distinctGeoValueInDWH = $DwhDimGeoSalesRepRepository->getDistinctValuesInColumn('geoLevel'.$geoLevel, $currentClientoutputid);
-
-                        $importGeoValueArray = array(); // Store value in array to be compared
-                        for ($i = 0; $i < count($distinctGeoValueInImportMapping); $i++) {
-                            $importGeoValueArray[] = $distinctGeoValueInImportMapping[$i]['geoValue'];
-                        }
-
-                        $currentGeoValueArray = array(); // Store value in array to be compared
-                        for ($u = 0; $u < count($distinctGeoValueInCurrentMapping); $u++) {
-                            $currentGeoValueArray[] = $distinctGeoValueInCurrentMapping[$u]['geoValue'];
-                        }
-
-                        $DwhGeoValueArray = array(); // Store value in array to be compared
-                        for ($u = 0; $u < count($distinctGeoValueInDWH); $u++) {
-                            $DwhGeoValueArray[] = $distinctGeoValueInDWH[$u]['geoLevel'.$geoLevel];
-                        }
-
-                        $comparisonGeoValueFromImport = array_diff($importGeoValueArray, $currentGeoValueArray);
-                        $comparisonGeoValueFromCurrent = array_diff($currentGeoValueArray, $importGeoValueArray);
-                        $comparisonImportWithDwh = array_diff($importGeoValueArray, $DwhGeoValueArray);
-
-                        // Check for New and Removed values
-                        if (count($comparisonGeoValueFromImport) > '0') {
-                            foreach ($comparisonGeoValueFromImport as $item) {
-                                $dataQualityCheck = new GsrmDataQualityChecks();
-                                $dataQualityCheck->setClientOutputId($currentClientoutputid);
-                                $dataQualityCheck->setLoadDate($currentLoadDate);
-                                $dataQualityCheck->setAnalyzedField('geo_value');
-                                $dataQualityCheck->setStatus('WARNING');
-                                $dataQualityCheck->setInfo('New geo (NameLevel) "' . $item . '" for level ' . $geoLevel . '.');
-                                $em->persist($dataQualityCheck);
-                            }
-                        } elseif (count($comparisonGeoValueFromCurrent) > '0') {
-                            foreach ($comparisonGeoValueFromCurrent as $item) {
-                                $dataQualityCheck = new GsrmDataQualityChecks();
-                                $dataQualityCheck->setClientOutputId($currentClientoutputid);
-                                $dataQualityCheck->setLoadDate($currentLoadDate);
-                                $dataQualityCheck->setAnalyzedField('geo_value');
-                                $dataQualityCheck->setStatus('WARNING');
-                                $dataQualityCheck->setInfo('Geo (NameLevel) "' . $item . '" for level ' . $geoLevel . ' will be removed.');
-                                $em->persist($dataQualityCheck);
-                            }
-                        } else {
-                            $dataQualityCheck = new GsrmDataQualityChecks();
-                            $dataQualityCheck->setClientOutputId($currentClientoutputid);
-                            $dataQualityCheck->setLoadDate($currentLoadDate);
-                            $dataQualityCheck->setAnalyzedField('geo_value');
-                            $dataQualityCheck->setStatus('CORRECT');
-                            $dataQualityCheck->setInfo('No change.');
-                            $em->persist($dataQualityCheck);
-                        }
-
-                        // Check if we have unexpected geo in new values regarding the geo_level_number
-                        if (count($comparisonImportWithDwh) > '0') {
-                            foreach ($comparisonImportWithDwh as $item) {
-                                $dataQualityCheck = new GsrmDataQualityChecks();
-                                $dataQualityCheck->setClientOutputId($currentClientoutputid);
-                                $dataQualityCheck->setLoadDate($currentLoadDate);
-                                $dataQualityCheck->setAnalyzedField('geo_value');
-                                $dataQualityCheck->setStatus('WARNING');
-                                $dataQualityCheck->setInfo('Unexpected geo (NameLevel) "' . $item . '" for level ' . $geoLevel . '.');
-                                $em->persist($dataQualityCheck);
-                            }
-                        }
-
-                        // Check if we have a mapping for all regions regarding the geo_level_number
-                        $comparisonDwhWithImport= array_diff($DwhGeoValueArray, $importGeoValueArray);
-                        if (count($comparisonDwhWithImport) > '0') {
-                            foreach ($comparisonDwhWithImport as $item) {
-                                $dataQualityCheck = new GsrmDataQualityChecks();
-                                $dataQualityCheck->setClientOutputId($currentClientoutputid);
-                                $dataQualityCheck->setLoadDate($currentLoadDate);
-                                $dataQualityCheck->setAnalyzedField('geo_value');
-                                $dataQualityCheck->setStatus('WARNING');
-                                $dataQualityCheck->setInfo('There is currently no mapping for NameLevel "' . $item . '" on level ' . $geoLevel . '.');
-                                $em->persist($dataQualityCheck);
-                            }
-                        }
-                    }
-
-
-                    // ---------------------------------------
-                    // 5 - SalesRep
-                    // ---------------------------------------
-                    $distinctSalesRepInImportMapping = $importMappingRepository->getDistinctSalesRep($currentClientoutputid);
-                    $distinctSalesRepInCurrentMapping = $currentMappingRepository->getDistinctSalesRep($currentClientoutputid);
-
-                    $importSalesRepArray = array(); // Store value in array to be compared
-                    for ($i = 0; $i < count($distinctSalesRepInImportMapping); $i++) {
-                        $importSalesRepArray[] = $distinctSalesRepInImportMapping[$i]['srFirstName'] . ' ' . $distinctSalesRepInImportMapping[$i]['srLastName'];
-                    }
-
-                    $currentSalesRepArray = array(); // Store value in array to be compared
-                    for ($u = 0; $u < count($distinctSalesRepInCurrentMapping); $u++) {
-                        $currentSalesRepArray[] = $distinctSalesRepInCurrentMapping[$u]['srFirstName'] . ' ' . $distinctSalesRepInCurrentMapping[$u]['srLastName'];
-                    }
-
-                    $comparisonSalesRepFromImport = array_diff($importSalesRepArray, $currentSalesRepArray);
-                    $comparisonSalesRepFromCurrent = array_diff($currentSalesRepArray, $importSalesRepArray);
-
-                    $totalSize = 0;
-                    $totalSize = count($comparisonSalesRepFromImport)+count($comparisonSalesRepFromCurrent);
-                    if (count($comparisonSalesRepFromImport) > '0') {
-                        foreach ($comparisonSalesRepFromImport as $item) {
-                            $dataQualityCheck = new GsrmDataQualityChecks();
-                            $dataQualityCheck->setClientOutputId($currentClientoutputid);
-                            $dataQualityCheck->setLoadDate($currentLoadDate);
-                            $dataQualityCheck->setAnalyzedField('sales_rep');
-                            $dataQualityCheck->setStatus('WARNING');
-                            $dataQualityCheck->setInfo('New SalesRep "' . $item . '".');
-                            $em->persist($dataQualityCheck);
-                        }
-                    } elseif (count($comparisonSalesRepFromCurrent) > '0') {
-                        foreach ($comparisonSalesRepFromCurrent as $item) {
-                            $dataQualityCheck = new GsrmDataQualityChecks();
-                            $dataQualityCheck->setClientOutputId($currentClientoutputid);
-                            $dataQualityCheck->setLoadDate($currentLoadDate);
-                            $dataQualityCheck->setAnalyzedField('sales_rep');
-                            $dataQualityCheck->setStatus('WARNING');
-                            $dataQualityCheck->setInfo('SalesRep "' . $item . '" will be removed.');
-                            $em->persist($dataQualityCheck);
-                        }
-                    } else {
-                        $dataQualityCheck = new GsrmDataQualityChecks();
-                        $dataQualityCheck->setClientOutputId($currentClientoutputid);
-                        $dataQualityCheck->setLoadDate($currentLoadDate);
-                        $dataQualityCheck->setAnalyzedField('sales_rep');
-                        $dataQualityCheck->setStatus('CORRECT');
-                        $dataQualityCheck->setInfo('No change.');
-                    }
-
-                    $em->persist($dataQualityCheck);
-                }
-            }
-            $em->flush();
-            */
-
             // Import Form return
             return $this->redirectToRoute('gsrm_viewLoadResult', array(
               'currentLoadDate' => $currentLoadDate
@@ -481,36 +220,52 @@ class GeoSalesRepMappingController extends Controller
     public function viewLoadResultAction(Request $request)
     {
         $loadDate = $request->query->get('currentLoadDate');
-
         $em = $this->getDoctrine()->getManager();
+        $importMappingRepository = $em->getRepository('AppBundle:GsrmImportMapping');
+        $currentMappingRepository = $em->getRepository('AppBundle:GsrmCurrentMapping');
         $dataQualityChecksRepository = $em->getRepository('AppBundle:GsrmDataQualityChecks');
         $dataQualityChecks = $dataQualityChecksRepository->findBy(array('loadDate' => $loadDate),array('id' => 'asc'), null, null);
-
-        $importMappingRepository = $em->getRepository('AppBundle:GsrmImportMapping');
         $importGeoSalesRepMappings = $importMappingRepository->findAll();
-
-        $currentMappingRepository = $em->getRepository('AppBundle:GsrmCurrentMapping');
 
         // Number of distinct clientoutputID
         $dataQualityChecksDistinctClientoutputId = $dataQualityChecksRepository->getDistinctClientOutputId($loadDate);
-        $nbrOfDistinctClientoutputId = count($dataQualityChecksDistinctClientoutputId);
 
-        // Number of WARNINGS by ClientoutputId
-        $nbrOfWarningsByClientoutputId = array();
-        for ($row = 0; $row < $nbrOfDistinctClientoutputId; $row++) {
+        // Status by ClientoutputId
+        $statusByClientoutputId = array();
+        for ($row = 0; $row < count($dataQualityChecksDistinctClientoutputId); $row++) {
             $clientoutputId = $dataQualityChecksDistinctClientoutputId[$row]['clientOutputId'];
-            $nbrOfWarningsByClientoutputId[] = array(
+            $statusByClientoutputId[] = array(
                 'clientoutputId' => $clientoutputId,
-                'nbr_of_warnings' => count($dataQualityChecksRepository->getWarningsForOneClientoutputId($loadDate, $clientoutputId)),
-                'nbr_of_current_mappings' => $currentMappingRepository->getNumberOfMappings($clientoutputId)
+                'nbr_of_warnings' => $dataQualityChecksRepository->getNbrOfWarnings($loadDate, $clientoutputId),
+                'nbr_of_removed_mappings' => $dataQualityChecksRepository->getNbrOfRemovedMappings($loadDate, $clientoutputId),
+                'nbr_of_changed_mappings' => $importMappingRepository->getNbrOfChangedMappings($clientoutputId),
+                'nbr_of_new_mappings' => $importMappingRepository->getNbrOfNewMappings($clientoutputId),
+                'nbr_of_unchanged_mappings' => $importMappingRepository->getNbrOfUnchangedMappings($clientoutputId),
+                'nbr_of_current_mappings' => $currentMappingRepository->getNbrOfMappings($clientoutputId),
+                'nbr_of_import_mappings' => $importMappingRepository->getNbrOfMappings($clientoutputId)
             );
         }
 
-        // Total number of WARNINGS in Data quality checks
+        // Overview status
         $totalNbrOfWarnings = 0;
-        for ($row = 0; $row < count($nbrOfWarningsByClientoutputId); $row++) {
-            $totalNbrOfWarnings += $nbrOfWarningsByClientoutputId[$row]['nbr_of_warnings'];
+        $totalNbrOfRemovedMappings = 0;
+        $totalNbrOfChangedMappings = 0;
+        $totalNbrOfNewMappings = 0;
+        $totalNbrOfUnchangedMappings = 0;
+        for ($row = 0; $row < count($statusByClientoutputId); $row++) {
+            $totalNbrOfWarnings += $statusByClientoutputId[$row]['nbr_of_warnings'];
+            $totalNbrOfRemovedMappings += $statusByClientoutputId[$row]['nbr_of_removed_mappings'];
+            $totalNbrOfChangedMappings += $statusByClientoutputId[$row]['nbr_of_changed_mappings'];
+            $totalNbrOfNewMappings += $statusByClientoutputId[$row]['nbr_of_new_mappings'];
+            $totalNbrOfUnchangedMappings += $statusByClientoutputId[$row]['nbr_of_unchanged_mappings'];
         }
+        $overviewStatus = array(
+            'total_nbr_of_warnings' => $totalNbrOfWarnings,
+            'total_nbr_of_removed_mappings' => $totalNbrOfRemovedMappings,
+            'total_nbr_of_changed_mappings' => $totalNbrOfChangedMappings,
+            'total_nbr_of_new_mappings' => $totalNbrOfNewMappings,
+            'total_nbr_of_unchanged_mappings' => $totalNbrOfUnchangedMappings
+        );
 
         // Confirm Form
         $confirmImportMappingForm = $this->createFormBuilder()
@@ -536,7 +291,7 @@ class GeoSalesRepMappingController extends Controller
                 // Return
                 return $this->redirectToRoute('gsrm_index');
             }
-            if($confirmImportMappingForm->get('confirm')->isClicked())
+            elseif ($confirmImportMappingForm->get('confirm')->isClicked())
             {
                 // Delete current mappings before adding the new ones
                 $em = $this->getDoctrine()->getManager();
@@ -546,11 +301,11 @@ class GeoSalesRepMappingController extends Controller
                 $distinctClientoutputidInImportMapping = $importMappingRepository->getDistinctClientOutputId();
                 $nbrDistinctImportClientoutputid = count($distinctClientoutputidInImportMapping);
 
-                for ($row = 0; $row < $nbrDistinctImportClientoutputid; $row++) {
-
+                for ($row = 0; $row < $nbrDistinctImportClientoutputid; $row++)
+                {
                     $currentImportClientoutputid = $distinctClientoutputidInImportMapping[$row]['clientOutputId']; // Current Client_output_id
-
-                    while ($currentMappingRepository->findOneBy(array('clientOutputId' => $currentImportClientoutputid))) {
+                    while ($currentMappingRepository->findOneBy(array('clientOutputId' => $currentImportClientoutputid)))
+                    {
                         $itemsToRemove = $currentMappingRepository->findOneBy(array('clientOutputId' => $currentImportClientoutputid));
                         $em->remove($itemsToRemove);
                         $em->flush();
@@ -561,8 +316,9 @@ class GeoSalesRepMappingController extends Controller
                 $em = $this->getDoctrine()->getManager();
                 $currentMappingRepository = $em->getRepository('AppBundle:GsrmCurrentMapping');
                 $importMappingRepository = $em->getRepository('AppBundle:GsrmImportMapping');
-                $importGeoSalesRepMappings = $importMappingRepository->findAll();
-                foreach ($importGeoSalesRepMappings as $mapping) {
+                //$importGeoSalesRepMappings = $importMappingRepository->findAll();
+                foreach ($importGeoSalesRepMappings as $mapping)
+                {
                     $geoSalesRep = new GsrmCurrentMapping();
                     $geoSalesRep->setClientOutputId($mapping->getClientOutputId());
                     $geoSalesRep->setVersionGeoStructureCode($mapping->getVersionGeoStructureCode());
@@ -586,8 +342,8 @@ class GeoSalesRepMappingController extends Controller
         return $this->render('GSRM/load_result.html.twig', array(
             'dataQualityChecks' => $dataQualityChecks,
             'importMapping' => $importGeoSalesRepMappings,
-            'nbrOfWarningsByClientoutputId' => $nbrOfWarningsByClientoutputId,
-            'totalNbrOfWarnings' => $totalNbrOfWarnings,
+            'statusByClientoutputId' => $statusByClientoutputId,
+            'overviewStatus' => $overviewStatus,
             'confirmForm' => $confirmImportMappingForm->createView(),
         ));
     }
