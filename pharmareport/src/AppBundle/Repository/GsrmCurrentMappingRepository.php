@@ -166,4 +166,21 @@ class GsrmCurrentMappingRepository extends EntityRepository
           ->getArrayResult()
         ;
     }
+
+
+    public function getMappingsToFindTheRemovedOnes($clientOutputId)
+    {
+        $qb = $this->createQueryBuilder('c');
+
+        $qb
+          ->select('c.geoLevelNumber, c.geoValue, c.geoTeam')
+          ->where('c.clientOutputId = :id')
+          ->setParameter('id', $clientOutputId)
+        ;
+
+        return $qb
+          ->getQuery()
+          ->getArrayResult()
+        ;
+    }
 }

@@ -109,4 +109,28 @@ class GsrmImportMappingRepository extends EntityRepository
           ->getArrayResult()
         ;
     }
+
+
+    public function getCorrespondingMapping($clientOutputId, $geoLevel, $geoValue, $geoTeam)
+    {
+        $qb = $this->createQueryBuilder('i');
+
+        $qb
+          ->select('i.ptk, i.clientOutputId, i.srFirstName, i.srLastName')
+          ->where('i.clientOutputId = :id')
+          ->setParameter('id', $clientOutputId)
+          ->andWhere('i.geoLevelNumber = :level')
+          ->setParameter('level', $geoLevel)
+          ->andWhere('i.geoValue = :value')
+          ->setParameter('value', $geoValue)
+          ->andWhere('i.geoTeam = :team')
+          ->setParameter('team', $geoTeam)
+          ->distinct()
+        ;
+
+        return $qb
+          ->getQuery()
+          ->getArrayResult()
+        ;
+    }
 }

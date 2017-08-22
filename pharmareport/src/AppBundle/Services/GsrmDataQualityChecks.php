@@ -45,6 +45,8 @@ class GsrmDataQualityChecks
     public function onMappings($importMappingRepository, $currentMappingRepository, $DwhDimGeoSalesRepRepository, $em)
     {
         $dataQualityChecks = array();
+        $importMappingsArray = array(); // Will used to find the removed mappings
+        $currentMappingsArray = array(); // Will used to find the removed mappings
 
         // --------------------------------------------------------------------------------------
         // Import mapping status
@@ -93,20 +95,19 @@ class GsrmDataQualityChecks
                     'info' => 'New mapping for geo "' . $importMappingGeoValue . '" (level ' . $importMappingGeoLevel . ') ==> Team: ' . $importMappingGeoTeam . ', SalesRep: ' . $importMappingSalesRepFirstName . ' ' . $importMappingSalesRepLastName . '.'
                 );
             }
+
+            // Fill import mappings array which will be compared to current mappings to find the removed ones
+            $importMappingsArray[] = array(
+                'client_output_id' => $importMappingClientoutputId,
+                'geo_level' => $importMappingGeoLevel,
+                'geo_value' => $importMappingGeoValue,
+                'geo_team' => $importMappingGeoTeam,
+            );
         }
 
-        // --------------------------------------------------------------------------------------
-        // Removed mappings
-        // --------------------------------------------------------------------------------------
-        // Extract into array all current mappings which are different from import mapping
-        // Loop on all these above current mappings
-        // Extract all similar import mappings into array
-        // Get status of this analyzed current mapping
-        // Insert only "will be removed" result into data quality checks array
-
 
         // --------------------------------------------------------------------------------------
-        // Missing mappings
+        // Missing & removed mappings
         // --------------------------------------------------------------------------------------
         $distinctClientoutputidInImportMapping = array();
         $distinctGeoLevelInImportMapping = array();
@@ -117,6 +118,9 @@ class GsrmDataQualityChecks
         for ($idRow = 0; $idRow < count($distinctClientoutputidInImportMapping); $idRow++)
         {
             $clientOutputId = $distinctClientoutputidInImportMapping[$idRow]['clientOutputId'];
+            // --------------------------------------------------------------------------------------
+            // Missing mappings
+            // --------------------------------------------------------------------------------------
             // Distinct geo_level in IMPORT
             $distinctGeoLevelInImportMapping = $importMappingRepository->getDistinctGeoLevelNumber($clientOutputId);
             for ($levelRow = 0; $levelRow < count($distinctGeoLevelInImportMapping); $levelRow++)
@@ -141,110 +145,97 @@ class GsrmDataQualityChecks
                     }
                 }
             }
+            // --------------------------------------------------------------------------------------
+            // Removed mappings
+            // --------------------------------------------------------------------------------------
+            // Current mappings array with client_output_id, geo_level, geo_value and geo_team
+            $currentMappings = $currentMappingRepository->getMappingsToFindTheRemovedOnes($clientOutputId);
+            for ($row = 0; $row < count($currentMappings); $row++) {
+                $currentMappingGeoLevel = $currentMappings[$row]['geoLevelNumber'];
+                $currentMappingGeoValue = $currentMappings[$row]['geoValue'];
+                $currentMappingGeoTeam = $currentMappings[$row]['geoTeam'];
+                $correspondingImportMapping = $importMappingRepository->getCorrespondingMapping($clientOutputId, $currentMappingGeoLevel, $currentMappingGeoValue, $currentMappingGeoTeam);
+                if (count($correspondingImportMapping) == 0) {
+                    $dataQualityChecks[] = array(
+                        'client_output_id' => $clientOutputId,
+                        'status' => 'REMOVED MAPPING',
+                        'info' => 'Mapping for team "' . $currentMappingGeoTeam . '" and geo "' . $currentMappingGeoValue . '" on level ' . $currentMappingGeoLevel . ' will be removed.'
+                    );
+                }
+            }
         }
 
+        // --------------------------------------------------------------------------------------
+        // Return of onMappings function
+        // --------------------------------------------------------------------------------------
         return $dataQualityChecks;
+    }
+
+
+    public function multidimensional_array_diff($array1, $array2)
+    {
+        $result = array();
+
+
+
+        foreach ($array2 as $key => $second)
+        {
+            foreach ($array1 as $key => $first)
+            {
+                foreach ($first as $first_value)
+                {
+                    foreach ($second as $second_value)
+                    {
+                        if ($first_value == $second_value)
+                        {
+                            $true = true;
+                            break;
+                        }
+                    }
+                    if (!isset($true))
+                    {
+                        $result[$key][] = $first_value;
+                    }
+                    unset($true);
+                }
+            }
+        }
+        // ------------------
+        foreach ($array2 as $key => $second)
+        {
+            foreach ($array1 as $key => $first)
+            {
+                if (isset($array2[$key]))
+                {
+                    foreach ($first as $first_value)
+                    {
+                        foreach ($second as $second_value)
+                        {
+                            if ($first_value == $second_value)
+                            {
+                                $true = true;
+                                break;
+                            }
+                        }
+                        if (!isset($true))
+                        {
+                            $result[$key][] = $first_value;
+                        }
+                        unset($true);
+                    }
+                }
+                else
+                {
+                    $result[$key] = $first;
+                }
+            }
+        }
+        return $result;
     }
 
 
     // ========================================================================================================
     // TESTS
     // ========================================================================================================
-    public function __construct($templating)
-    {
-        $this->templating = $templating;
-    }
 
-    public function testMessage()
-    {
-        $messsage = $this->getMyMessage();
-        return $messsage;
-    }
-
-    public function getMyMessage()
-    {
-        $messsage = "Hé mon ami!";
-        return $messsage;
-    }
-
-    public function dataQualityCheckOnVersionGeoStructureCode($clientOutputId, $importMappingRepository, $currentMappingRepository)
-    {
-        $distinctVersionGeoStructureCodeInImportMapping = $importMappingRepository->getDistinctVersionGeoStructureCode($currentClientoutputid);
-        $distinctVersionGeoStructureCodeInCurrentMapping = $currentMappingRepository->getDistinctVersionGeoStructureCode($currentClientoutputid);
-
-        if (count($distinctVersionGeoStructureCodeInImportMapping) > '1')
-        {
-            return $this->templating->render('GSRM/error_version_geo_structure_code.html.twig', array(
-                'error_message' => 'Version_geo_structure_code must be unique for one ClientoutputId. ',
-                'client_output_id' => $currentClientoutputid,
-                'distinct_version_geo_structure_code' => $distinctVersionGeoStructureCodeInImportMapping
-            ));
-        }
-
-        if (count($distinctVersionGeoStructureCodeInCurrentMapping) == 0)
-        {
-            $firstMappingBoolean = true;
-        } else
-        {
-            $firstMappingBoolean = false;
-        }
-
-        return $firstMappingBoolean;
-    }
-
-    public function dataQualityCheckOnGeoTeam($clientOutputId, $importMappingRepository, $currentMappingRepository)
-    {
-
-
-        // ---------------------------------------
-        // 2 - geoTeam
-        // ---------------------------------------
-        $distinctGeoTeamInImportMapping = $importMappingRepository->getDistinctValuesInColumn('geoTeam', $currentClientoutputid);
-        $distinctGeoTeamInCurrentMapping = $currentMappingRepository->getDistinctValuesInColumn('geoTeam', $currentClientoutputid);
-
-        $importArray = array(); // Store value in array to be compared
-        for ($i = 0; $i < count($distinctGeoTeamInImportMapping); $i++) {
-            $importArray[] = $distinctGeoTeamInImportMapping[$i]['geoTeam'];
-        }
-
-        $currentArray = array(); // Store value in array to be compared
-        for ($u = 0; $u < count($distinctGeoTeamInCurrentMapping); $u++) {
-            $currentArray[] = $distinctGeoTeamInCurrentMapping[$u]['geoTeam'];
-        }
-
-        $comparisonFromImport = array_diff($importArray, $currentArray);
-        $comparisonFromCurrent = array_diff($currentArray, $importArray);
-
-        // Check for New and Removed values
-        if (count($comparisonFromImport) > '0') {
-            foreach ($comparisonFromImport as $item) {
-                $dataQualityCheck = new GsrmDataQualityChecks();
-                $dataQualityCheck->setClientOutputId($currentClientoutputid);
-                $dataQualityCheck->setLoadDate($currentLoadDate);
-                $dataQualityCheck->setAnalyzedField('geo_team');
-                $dataQualityCheck->setStatus('WARNING');
-                $dataQualityCheck->setInfo('New team (MarketId) "' . $item . '".');
-                $em->persist($dataQualityCheck);
-            }
-        } elseif (count($comparisonFromCurrent) > '0') {
-            foreach ($comparisonFromCurrent as $item) {
-                $dataQualityCheck = new GsrmDataQualityChecks();
-                $dataQualityCheck->setClientOutputId($currentClientoutputid);
-                $dataQualityCheck->setLoadDate($currentLoadDate);
-                $dataQualityCheck->setAnalyzedField('geo_team');
-                $dataQualityCheck->setStatus('WARNING');
-                $dataQualityCheck->setInfo('Team (MarketId) "' . $item . '" will be removed.');
-                $em->persist($dataQualityCheck);
-            }
-        } else {
-            $dataQualityCheck = new GsrmDataQualityChecks();
-            $dataQualityCheck->setClientOutputId($currentClientoutputid);
-            $dataQualityCheck->setLoadDate($currentLoadDate);
-            $dataQualityCheck->setAnalyzedField('geo_team');
-            $dataQualityCheck->setStatus('CORRECT');
-            $dataQualityCheck->setInfo('No change.');
-        }
-
-        $em->persist($dataQualityCheck);
-    }
 }
