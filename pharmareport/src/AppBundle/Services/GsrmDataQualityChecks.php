@@ -62,12 +62,21 @@ class GsrmDataQualityChecks
             $importMappingSalesRepLastName = $importMapping->getSrLastName();
 
             // Status
-            $statusNoChangedMapping = $currentMappingRepository->getNoChangedMapping($importMappingClientoutputId, $importMappingGeoLevel, $importMappingGeoValue, $importMappingGeoTeam, $importMappingSalesRepFirstName, $importMappingSalesRepLastName);
+            $statusUnexpectedMapping = $DwhDimGeoSalesRepRepository->getGeoValue($importMappingClientoutputId, $importMappingGeoLevel, $importMappingGeoValue);
+            $statusUnchangedMapping = $currentMappingRepository->getUnchangedMapping($importMappingClientoutputId, $importMappingGeoLevel, $importMappingGeoValue, $importMappingGeoTeam, $importMappingSalesRepFirstName, $importMappingSalesRepLastName);
             $statusChangedMapping = $currentMappingRepository->getChangedMapping($importMappingClientoutputId, $importMappingGeoLevel, $importMappingGeoValue, $importMappingGeoTeam);
-            if (count($statusNoChangedMapping) > 0) {
+            if (count($statusUnexpectedMapping) == 0) { // Check if UNEXPECTED mapping
+                $importMapping->setMappingStatus('UNEXPECTED');
+                $em->persist($importMapping);
+                $dataQualityChecks[] = array(
+                    'client_output_id' => $importMappingClientoutputId,
+                    'status' => 'WARNING',
+                    'info' => 'Unexpected mapping on geo_level ' . $importMappingGeoLevel . ': geo "' . $importMappingGeoValue . '" doesn\'t currently exist in PharmaReport data warehouse.'
+                );
+            } elseif (count($statusUnchangedMapping) > 0) { // Check if UNCHANGED mapping
                 $importMapping->setMappingStatus('UNCHANGED');
                 $em->persist($importMapping);
-            } elseif (count($statusChangedMapping) > 0) {
+            } elseif (count($statusChangedMapping) > 0) { // Check if CHANGED mapping
                 $importMapping->setMappingStatus('CHANGED');
                 $em->persist($importMapping);
                 $currentMappingSalesRepFirstName = $statusChangedMapping[0]['srFirstName'];
@@ -77,7 +86,7 @@ class GsrmDataQualityChecks
                     'status' => 'CHANGED MAPPING',
                     'info' => 'SalesRep will be changed for geo "' . $importMappingGeoValue . '" (level ' . $importMappingGeoLevel . ') and for team "' . $importMappingGeoTeam . '" ==> ' . $importMappingSalesRepFirstName . ' ' . $importMappingSalesRepLastName . ' (instead of ' . $currentMappingSalesRepFirstName . ' ' . $currentMappingSalesRepLastName . ').'
                 );
-            } else {
+            } else { // ELSE, it's a NEW mapping
                 $importMapping->setMappingStatus('NEW');
                 $em->persist($importMapping);
                 $dataQualityChecks[] = array(

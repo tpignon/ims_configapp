@@ -116,7 +116,7 @@ class GsrmCurrentMappingRepository extends EntityRepository
     }
 
 
-    public function getNoChangedMapping($clientOutputId, $geoLevel, $geoValue, $geoTeam, $srFirstName, $srLastName)
+    public function getUnchangedMapping($clientOutputId, $geoLevel, $geoValue, $geoTeam, $srFirstName, $srLastName)
     {
         $qb = $this->createQueryBuilder('c');
 
