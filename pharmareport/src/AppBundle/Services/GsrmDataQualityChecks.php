@@ -126,17 +126,22 @@ class GsrmDataQualityChecks
             for ($levelRow = 0; $levelRow < count($distinctGeoLevelInImportMapping); $levelRow++)
             {
                 $geoLevel = $distinctGeoLevelInImportMapping[$levelRow]['geoLevelNumber'];
-                $dwhGeoLevelColumnName = 'geoLevel' . $geoLevel;
-                // Distinct geo_value in IMPORT and DWH
-                $distinctGeoValueInImportMapping = array_column($importMappingRepository->getDistinctGeoValue($clientOutputId, $geoLevel), 'geoValue');
-                $distinctGeoValueInDwh = array_column($DwhDimGeoSalesRepRepository->getDistinctGeoValue($clientOutputId, $geoLevel), $dwhGeoLevelColumnName);
+                $distinctGeoValueInImportMapping = $importMappingRepository->getDistinctGeoValue($clientOutputId, $geoLevel);
+                $distinctGeoValueInDWH = $DwhDimGeoSalesRepRepository->getDistinctGeoValue($clientOutputId, 'geoLevel' . $geoLevel);
 
-                $comparisonDwhWithImport = array_diff($distinctGeoValueInDwh, $distinctGeoValueInImportMapping);
-                if (count($comparisonDwhWithImport) > 0)
-                {
-                    for ($row = 0; $row < count($comparisonDwhWithImport); $row++)
-                    {
-                        $geoValue = $comparisonDwhWithImport[$row];
+                $importGeoValueArray = array(); // Store value in array to be compared
+                for ($i = 0; $i < count($distinctGeoValueInImportMapping); $i++) {
+                    $importGeoValueArray[] = $distinctGeoValueInImportMapping[$i]['geoValue'];
+                }
+                $DwhGeoValueArray = array(); // Store value in array to be compared
+                for ($u = 0; $u < count($distinctGeoValueInDWH); $u++) {
+                    $DwhGeoValueArray[] = $distinctGeoValueInDWH[$u]['geoLevel'.$geoLevel];
+                }
+
+                $comparisonDwhWithImport = array_diff($DwhGeoValueArray, $importGeoValueArray);
+
+                if (count($comparisonDwhWithImport) > '0') {
+                    foreach ($comparisonDwhWithImport as $geoValue) {
                         $dataQualityChecks[] = array(
                             'client_output_id' => $clientOutputId,
                             'status' => 'WARNING',
@@ -163,6 +168,21 @@ class GsrmDataQualityChecks
                     );
                 }
             }
+
+            // --------------------------------------------------------------------------------------
+            // Empty $dataQualityChecks array
+            // At this step, this means we have no change in import mapping for this client_output_id:
+            //    - No UNEXPECTED mapping
+            //    - No CHANGED mapping
+            //    - No NEW mapping
+            //    - No MISSING mapping
+            //    - No REMOVED mapping
+            // --------------------------------------------------------------------------------------
+            $dataQualityChecks[] = array(
+                'client_output_id' => $importMappingClientoutputId,
+                'status' => 'NO CHANGE',
+                'info' => 'No change in import mappings for this client_output_id ' . $importMappingClientoutputId . '.'
+            );
         }
 
         // --------------------------------------------------------------------------------------

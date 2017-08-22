@@ -44,7 +44,8 @@ class GeoSalesRepMappingController extends Controller
             // --------------------------------------------------------------
             // Import mappings into an array
             // --------------------------------------------------------------
-            $currentLoadDate = date('Y-m-d H:i:s');
+            //$currentLoadDate = date('Y-m-d H:i:s');
+            $currentLoadDate = date('Ymd_His');
 
             $GeoSalesRepMappingFileFolder = $this->getParameter('geosalesrep_csvfile_folder');
             $GeoSalesRepMappingFileName = $this->getParameter('geosalesrep_csvfile_filename');
@@ -123,7 +124,6 @@ class GeoSalesRepMappingController extends Controller
             // --------------------------------------------------------------
             // Data quality checks (DQC)
             // --------------------------------------------------------------
-
             $importMappingRepository = $em->getRepository('AppBundle:GsrmImportMapping');
             $currentMappingRepository = $em->getRepository('AppBundle:GsrmCurrentMapping');
             $DwhDimGeoSalesRepRepository = $em->getRepository('AppBundle:DwhDimGeoSalesRep');
@@ -193,14 +193,12 @@ class GeoSalesRepMappingController extends Controller
         $geoSalesRepViewMapping = new GsrmViewCurrentMapping();
         $geoSalesRepViewMappingForm = $this->createForm(GsrmViewCurrentMappingType::class, $geoSalesRepViewMapping);
 
-        if ($request->isMethod('POST') && $geoSalesRepViewMappingForm->handleRequest($request)->isValid()) {
-
+        if ($request->isMethod('POST') && $geoSalesRepViewMappingForm->handleRequest($request)->isValid())
+        {
             $datasetID = $geoSalesRepViewMapping->getDataset();
-
             return $this->redirectToRoute('gsrm_mapping', array(
               'clientoutputid' => $datasetID
             ));
-
         }
 
         // ================================================================================================================
