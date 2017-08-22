@@ -49,10 +49,8 @@ class GsrmDataQualityChecks
         // --------------------------------------------------------------------------------------
         // Import mapping status
         // --------------------------------------------------------------------------------------
-        // Extract import mappings into array
-        $listImportMappingsArray = $importMappingRepository->findAll();
-
         // Loop on all import mappings
+        $listImportMappingsArray = $importMappingRepository->findAll();
         foreach($listImportMappingsArray as $importMapping) {
             $importMappingClientoutputId = $importMapping->getClientOutputId();
             $importMappingGeoLevel = $importMapping->getGeoLevelNumber();
@@ -97,9 +95,8 @@ class GsrmDataQualityChecks
             }
         }
 
-
         // --------------------------------------------------------------------------------------
-        // Current mapping status (to see which mapping will be removed)
+        // Removed mappings
         // --------------------------------------------------------------------------------------
         // Extract into array all current mappings which are different from import mapping
         // Loop on all these above current mappings
@@ -109,10 +106,42 @@ class GsrmDataQualityChecks
 
 
         // --------------------------------------------------------------------------------------
-        // Comparison with DWH_d_geo_sales_rep (to see unexpected & missing mappings)
+        // Missing mappings
         // --------------------------------------------------------------------------------------
-        // Check for unexpected mappings
-        // Check for missing mappings
+        $distinctClientoutputidInImportMapping = array();
+        $distinctGeoLevelInImportMapping = array();
+        $distinctGeoValueInImportMapping = array();
+        $distinctGeoValueInDwh = array();
+        // Distinct client_output_id in IMPORT
+        $distinctClientoutputidInImportMapping = $importMappingRepository->getDistinctClientOutputId();
+        for ($idRow = 0; $idRow < count($distinctClientoutputidInImportMapping); $idRow++)
+        {
+            $clientOutputId = $distinctClientoutputidInImportMapping[$idRow]['clientOutputId'];
+            // Distinct geo_level in IMPORT
+            $distinctGeoLevelInImportMapping = $importMappingRepository->getDistinctGeoLevelNumber($clientOutputId);
+            for ($levelRow = 0; $levelRow < count($distinctGeoLevelInImportMapping); $levelRow++)
+            {
+                $geoLevel = $distinctGeoLevelInImportMapping[$levelRow]['geoLevelNumber'];
+                $dwhGeoLevelColumnName = 'geoLevel' . $geoLevel;
+                // Distinct geo_value in IMPORT and DWH
+                $distinctGeoValueInImportMapping = array_column($importMappingRepository->getDistinctGeoValue($clientOutputId, $geoLevel), 'geoValue');
+                $distinctGeoValueInDwh = array_column($DwhDimGeoSalesRepRepository->getDistinctGeoValue($clientOutputId, $geoLevel), $dwhGeoLevelColumnName);
+
+                $comparisonDwhWithImport = array_diff($distinctGeoValueInDwh, $distinctGeoValueInImportMapping);
+                if (count($comparisonDwhWithImport) > 0)
+                {
+                    for ($row = 0; $row < count($comparisonDwhWithImport); $row++)
+                    {
+                        $geoValue = $comparisonDwhWithImport[$row];
+                        $dataQualityChecks[] = array(
+                            'client_output_id' => $clientOutputId,
+                            'status' => 'WARNING',
+                            'info' => 'There is currently no mapping for geo "' . $geoValue . '" on geo level ' . $geoLevel . '.'
+                        );
+                    }
+                }
+            }
+        }
 
         return $dataQualityChecks;
     }

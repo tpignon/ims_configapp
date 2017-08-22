@@ -74,7 +74,7 @@ class GsrmImportMappingRepository extends EntityRepository
         ;
     }
 
-    public function getDistinctGeoName($clientoutputid, $geoLevelNumber)
+    public function getDistinctGeoValue($clientoutputid, $geoLevelNumber)
     {
         $qb = $this->createQueryBuilder('i');
 

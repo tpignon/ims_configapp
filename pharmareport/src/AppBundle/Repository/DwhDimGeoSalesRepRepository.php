@@ -24,6 +24,24 @@ class DwhDimGeoSalesRepRepository extends EntityRepository
     }
 
 
+    public function getDistinctGeoValue($clientOutputId, $geoLevel)
+    {
+        $qb = $this->createQueryBuilder('d');
+
+        $qb
+          ->select('d.geoLevel' . $geoLevel)
+          ->where('d.clientOutputId = :id')
+          ->setParameter('id', $clientOutputId)
+          ->distinct()
+        ;
+
+        return $qb
+          ->getQuery()
+          ->getArrayResult()
+        ;
+    }
+
+
     public function getGeoValue($clientOutputId, $geoLevel, $geoValue)
     {
         $qb = $this->createQueryBuilder('d');

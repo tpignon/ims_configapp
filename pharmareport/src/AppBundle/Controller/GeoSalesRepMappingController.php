@@ -129,8 +129,6 @@ class GeoSalesRepMappingController extends Controller
             $DwhDimGeoSalesRepRepository = $em->getRepository('AppBundle:DwhDimGeoSalesRep');
             $dataQualityChecksService = $this->get('GsrmDataQualityChecks');
 
-            //$dataQualityChecks = array();
-
             // DQC on version_geo_structure_code
             $DQCOnVersionGeoStructureCode = $dataQualityChecksService->onVersionGeoStructureCode($importMappingRepository, $currentMappingRepository);
             if (count($DQCOnVersionGeoStructureCode) != 0)
@@ -162,13 +160,6 @@ class GeoSalesRepMappingController extends Controller
                 $dataQualityCheck->setStatus($DQCOnMappings[$row]['status']);
                 $dataQualityCheck->setInfo($DQCOnMappings[$row]['info']);
                 $em->persist($dataQualityCheck);
-
-                //$dataQualityChecks[] = array(
-                    //'client_output_id' => $DQCOnMappings[$row]['client_output_id'],
-                    //'status' => $DQCOnMappings[$row]['status'],
-                    //'info' => $DQCOnMappings[$row]['info']
-                //);
-
             }
 
             $em->flush();
@@ -182,102 +173,8 @@ class GeoSalesRepMappingController extends Controller
             for ($row = 0; $row < count($distinctClientoutputidInImportMapping); $row++)
             {
                 $currentClientoutputid = $distinctClientoutputidInImportMapping[$row]['clientOutputId']; // Current Client_output_id
-                // Check if version_geo_structure_code is unique
-                $distinctVersionGeoStructureCodeInImportMapping = $importMappingRepository->getDistinctVersionGeoStructureCode($currentClientoutputid);
-                $distinctVersionGeoStructureCodeInCurrentMapping = $currentMappingRepository->getDistinctVersionGeoStructureCode($currentClientoutputid);
-                if (count($distinctVersionGeoStructureCodeInImportMapping) > '1')
-                {
-                   return $this->render('GSRM/error_version_geo_structure_code.html.twig', array(
-                        'error_message' => 'Version_geo_structure_code must be unique for one ClientoutputId. ',
-                        'client_output_id' => $currentClientoutputid,
-                        'distinct_version_geo_structure_code' => $distinctVersionGeoStructureCodeInImportMapping
-                    ));
-                }
 
-                // Check if first mapping for this client_output_id
-                if (count($distinctVersionGeoStructureCodeInCurrentMapping) == 0)
-                {
-
-                    // ---------------------------------------
-                    // 3 - geoLevelNumber
-                    // ---------------------------------------
-                    //$distinctGeoLevelInImportMapping = $importMappingRepository->getDistinctValuesInColumn('geoLevelNumber', $currentClientoutputid);
-                    $distinctGeoLevelInImportMapping = $importMappingRepository->getDistinctGeoLevelNumber($currentClientoutputid);
-
-                    $importGeoLevelArray = array(); // Store value in array to be compared
-                    for ($i = 0; $i < count($distinctGeoLevelInImportMapping); $i++)
-                    {
-                        $importGeoLevelArray[] = $distinctGeoLevelInImportMapping[$i]['geoLevelNumber'];
-                    }
-
-                    // ---------------------------------------
-                    // 4 - geoValue
-                    // ---------------------------------------
-                    for ($geoLevelRow = 0; $geoLevelRow < count($importGeoLevelArray); $geoLevelRow++)
-                    {
-                        $geoLevel = $importGeoLevelArray[$geoLevelRow];
-                        $distinctGeoValueInImportMapping = $importMappingRepository->getDistinctGeoName($currentClientoutputid, $geoLevel);
-                        $distinctGeoValueInDWH = $DwhDimGeoSalesRepRepository->getDistinctValuesInColumn('geoLevel'.$geoLevel, $currentClientoutputid);
-
-                        $importGeoValueArray = array(); // Store value in array to be compared
-                        for ($i = 0; $i < count($distinctGeoValueInImportMapping); $i++) {
-                            $importGeoValueArray[] = $distinctGeoValueInImportMapping[$i]['geoValue'];
-                        }
-
-                        $DwhGeoValueArray = array(); // Store value in array to be compared
-                        for ($u = 0; $u < count($distinctGeoValueInDWH); $u++) {
-                            $DwhGeoValueArray[] = $distinctGeoValueInDWH[$u]['geoLevel'.$geoLevel];
-                        }
-
-                        $comparisonImportWithDwh = array_diff($importGeoValueArray, $DwhGeoValueArray);
-                        $comparisonDwhWithImport = array_diff($DwhGeoValueArray, $importGeoValueArray);
-
-                        // Check if we have unexpected geo in new values regarding the geo_level_number
-                        if (count($comparisonImportWithDwh) > '0') {
-                            foreach ($comparisonImportWithDwh as $item) {
-                                $dataQualityCheck = new GsrmDataQualityChecks();
-                                $dataQualityCheck->setClientOutputId($currentClientoutputid);
-                                $dataQualityCheck->setLoadDate($currentLoadDate);
-                                $dataQualityCheck->setAnalyzedField('geo_value');
-                                $dataQualityCheck->setStatus('WARNING');
-                                $dataQualityCheck->setInfo('Unexpected geo (NameLevel) "' . $item . '" for level ' . $geoLevel . '.');
-                                $em->persist($dataQualityCheck);
-                            }
-                        }
-
-                        // Check if we have a mapping for all regions regarding the geo_level_number
-                        if (count($comparisonDwhWithImport) > '0') {
-                            foreach ($comparisonDwhWithImport as $item) {
-                                $dataQualityCheck = new GsrmDataQualityChecks();
-                                $dataQualityCheck->setClientOutputId($currentClientoutputid);
-                                $dataQualityCheck->setLoadDate($currentLoadDate);
-                                $dataQualityCheck->setAnalyzedField('geo_value');
-                                $dataQualityCheck->setStatus('WARNING');
-                                $dataQualityCheck->setInfo('There is currently no mapping for geo (NameLevel) "' . $item . '" on level ' . $geoLevel . '.');
-                                $em->persist($dataQualityCheck);
-                            }
-                        }
-                    }
-                }
                 else {
-                    if ($distinctVersionGeoStructureCodeInImportMapping == $distinctVersionGeoStructureCodeInCurrentMapping) {
-                        $dataQualityCheck = new GsrmDataQualityChecks();
-                        $dataQualityCheck->setClientOutputId($currentClientoutputid);
-                        $dataQualityCheck->setLoadDate($currentLoadDate);
-                        $dataQualityCheck->setAnalyzedField('version_geo_structure_code');
-                        $dataQualityCheck->setStatus('CORRECT');
-                        $dataQualityCheck->setInfo('No change.');
-                    } else {
-                        $dataQualityCheck = new GsrmDataQualityChecks();
-                        $dataQualityCheck->setClientOutputId($currentClientoutputid);
-                        $dataQualityCheck->setLoadDate($currentLoadDate);
-                        $dataQualityCheck->setAnalyzedField('version_geo_structure_code');
-                        $dataQualityCheck->setStatus('WARNING');
-                        $dataQualityCheck->setInfo('New name = ' . $distinctVersionGeoStructureCodeInImportMapping[0]['versionGeoStructureCode'] . ' (OLD NAME was ' . $distinctVersionGeoStructureCodeInCurrentMapping[0]['versionGeoStructureCode'] . '.');
-                    }
-
-                    $em->persist($dataQualityCheck);
-
                     // ---------------------------------------
                     // 2 - geoTeam
                     // ---------------------------------------
