@@ -1,0 +1,43 @@
+{% extends 'layout_targets.html.twig' %}
+
+{% block body %}
+
+    <div>
+        <center>
+            {{ form_start(confirmForm) }}
+                {{ form_widget(confirmForm.cancel, {'attr': {'class': 'btn btn-warning'}}) }}
+                {{ form_widget(confirmForm.confirm, {'attr': {'class': 'btn btn-danger'}}) }}
+            {{ form_end(confirmForm) }}
+        </center>
+        <br />
+    </div>
+
+    <div class="table-responsive">
+      <h3><strong>Preview import data :</strong></h3>
+        <table class="table table-bordered">
+          <tr>
+            <th>ClientoutputId</th>
+            <th>Product Market Level</th>
+            <th>Region Level</th>
+            <th>Period</th>
+            <th>Target Units</th>
+            <th>MS Units Target</th>
+            <th>MS Value Target</th>
+            <th>Target Value</th>
+          </tr>
+          {% for target in importTargets %}
+            <tr>
+              <td>{{ target.clientOutputId }}</td>
+              <td>{{ target.productMarketLevel }}</td>
+              <td>{{ target.regionLevel }}</td>
+              <td>{{ target.period }}</td>
+              <td>{{ target.targetUnits }}</td>
+              <td>{{ target.msUnitsTarget }}</td>
+              <td>{{ target.msValueTarget }}</td>
+              <td>{{ target.targetValue }}</td>
+            </tr>
+          {% endfor %}
+        </table>
+    </div>
+
+{% endblock %}

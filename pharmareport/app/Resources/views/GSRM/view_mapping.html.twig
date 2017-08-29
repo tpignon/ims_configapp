@@ -5,16 +5,19 @@
 {% endblock %}
 
 {% block body %}
-    <h3><strong>Select a ClientOutputID to see the current mapping :</strong></h3>
-    <center>
-        <div class="well">
-            {{ form_start(GeoSalesRepViewMappingForm) }}
-                {{ form_row(GeoSalesRepViewMappingForm.dataset) }}
-                <a href="{{ path('gsrm_index') }}"><button type="button" class="btn btn-info">Index page</button></a>
-                {{ form_widget(GeoSalesRepViewMappingForm.see, {'attr': {'class': 'btn btn-primary'}, 'label': 'See the mapping' }) }}
-            {{ form_end(GeoSalesRepViewMappingForm) }}
-        </div>
-    </center><br />
+    <h3><strong>Select a dataset to see another current mapping :</strong></h3>
+
+    <div class="well">
+        {{ form_start(GeoSalesRepViewMappingForm) }}
+            {{ form_row(GeoSalesRepViewMappingForm.dataset) }}
+            <center>
+              <a href="{{ path('gsrm_index') }}"><button type="button" class="btn btn-info">Index page</button></a>
+              {{ form_widget(GeoSalesRepViewMappingForm.see, {'attr': {'class': 'btn btn-primary'}, 'label': 'See the mapping' }) }}
+            </center>
+        {{ form_end(GeoSalesRepViewMappingForm) }}
+    </div>
+
+    <br />
 
     <table border="0px" width="100%">
         <tr>
@@ -23,7 +26,7 @@
             </td>
             <td align="right">
                 {{ form_start(downloadForm) }}
-                    {{ form_widget(downloadForm.download, {'attr': {'class': 'btn btn-primary'}, 'label': 'Download this mapping' }) }}
+                    {{ form_widget(downloadForm.download, {'attr': {'class': 'btn btn-primary'}}) }}
                 {{ form_end(downloadForm) }}
             </td>
         </tr>

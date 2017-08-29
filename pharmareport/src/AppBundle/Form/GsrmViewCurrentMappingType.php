@@ -18,7 +18,7 @@ class GsrmViewCurrentMappingType extends AbstractType
           ->add('dataset', ChoiceType::class, array(
               'expanded' => false,
               'multiple' => false,
-              'label' => 'Select a dataset :',
+              'label' => false,//'Select a dataset :',
               'choices' => array(
                   'Select a dataset ...' => false,
                   'Boiron - PTR (ClientOutputID : 3970)' => '3970',

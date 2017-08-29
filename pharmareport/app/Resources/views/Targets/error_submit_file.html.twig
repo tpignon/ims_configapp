@@ -1,0 +1,20 @@
+{% extends 'layout_targets.html.twig' %}
+
+{% block title %}
+  Error - {{ parent() }}
+{% endblock %}
+
+{% block body %}
+
+    <div class="alert alert-danger">
+      <center>
+        <h3><strong>ERROR</strong></h3><br />
+        {% if error_row is defined %}
+            <h4>Error on <strong>row {{ error_row }}</strong> of the imported file.</h4><br />
+        {% endif %}
+        {{ error_message }}<br /><br />
+      </center>
+    </div><br />
+    <center><a href="{{ path('targets_index') }}"><button type="button" class="btn btn-info">Index page</button></a></center>
+
+{% endblock %}

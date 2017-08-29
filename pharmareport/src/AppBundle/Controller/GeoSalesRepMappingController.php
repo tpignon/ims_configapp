@@ -1,5 +1,5 @@
 <?php
-
+// All files concerning this module "GeoSalesRep Mapping" will have the prefix "Gsrm" for GeoSalesRepMapping
 namespace AppBundle\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -347,9 +347,6 @@ class GeoSalesRepMappingController extends Controller
     }
 
 
-
-
-
     /**
      * @Route("/gsrm/mapping/{clientoutputid}", name="gsrm_mapping")
      */
@@ -382,7 +379,7 @@ class GeoSalesRepMappingController extends Controller
         $exportMappingFile->setDatasetName($clientoutputid);
 
         $downloadForm = $this->createFormBuilder($exportMappingFile)
-            ->add('download', SubmitType::class, array('label' => 'Download this mapping'))
+            ->add('download', SubmitType::class, array('label' => 'Download this mapping as a template file'))
             ->getForm()
         ;
 

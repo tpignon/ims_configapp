@@ -7,14 +7,14 @@ use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use AppBundle\Entity\GsrmImportMappingFile;
+use AppBundle\Entity\TarImportTargetsFile;
 
-class GsrmImportMappingFileType extends AbstractType
+class TarImportTargetsFileType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-          ->add('gsrmImportMappingFile', FileType::class, array(
+          ->add('importTargetsFile', FileType::class, array(
               'label' => false//'File (CSV file) :'
             ))
           ->add('submit',   SubmitType::class)
@@ -24,7 +24,7 @@ class GsrmImportMappingFileType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults(array(
-          'data_class' => 'AppBundle\Entity\GsrmImportMappingFile'
+          'data_class' => 'AppBundle\Entity\TarImportTargetsFile'
         ));
     }
 }

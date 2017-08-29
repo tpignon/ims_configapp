@@ -1,9 +1,4 @@
-{# app/Resources/views/GSRM/index.html.twig #}
 {% extends 'layout_gsrm.html.twig' %}
-
-{% block title %}
-    Index - {{ parent() }}
-{% endblock %}
 
 {% block body %}
 
@@ -23,7 +18,7 @@
         {{ form_end(GeoSalesRepExportTemplateForm) }}
     </div><br />
 
-    <h3><strong>Select a ClientOutputID to see the current mapping :</strong></h3>
+    <h3><strong>See the current mapping :</strong></h3>
     <div class="well">
         {{ form_start(GeoSalesRepViewMappingForm) }}
             {{ form_row(GeoSalesRepViewMappingForm.dataset) }}

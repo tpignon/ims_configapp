@@ -1,0 +1,53 @@
+{% extends 'layout_targets.html.twig' %}
+
+{% block body %}
+    <h3><strong>Select a dataset to see the current targets :</strong></h3>
+    <center>
+        <div class="well">
+            {{ form_start(viewTargetsForm) }}
+                {{ form_row(viewTargetsForm.dataset) }}
+                <a href="{{ path('targets_index') }}"><button type="button" class="btn btn-info">Index page</button></a>
+                {{ form_widget(viewTargetsForm.see, {'attr': {'class': 'btn btn-primary'}, 'label': 'See the mapping' }) }}
+            {{ form_end(viewTargetsForm) }}
+        </div>
+    </center>
+
+    <br />
+
+    <table border="0px" width="100%">
+        <tr>
+            <td>
+                <h3><strong>Current targets for ClientoutputId {{ datasetId }} :</strong></h3>
+            </td>
+            <td align="right">
+                {{ form_start(downloadForm) }}
+                    {{ form_widget(downloadForm.download, {'attr': {'class': 'btn btn-primary'}}) }}
+                {{ form_end(downloadForm) }}
+            </td>
+        </tr>
+    </table>
+    <table class="table table-bordered">
+        <tr>
+            <th>ClientoutputId</th>
+            <th>Product Market Level</th>
+            <th>Region Level</th>
+            <th>Period</th>
+            <th>Target units</th>
+            <th>MS Units Target</th>
+            <th>MS Value Target</th>
+            <th>Target value</th>
+        </tr>
+        {% for target in targets %}
+            <tr>
+                <td>{{ target.clientOutputId }}</td>
+                <td>{{ target.productMarketLevel }}</td>
+                <td>{{ target.regionLevel }}</td>
+                <td>{{ target.period }}</td>
+                <td>{{ target.targetUnits }}</td>
+                <td>{{ target.msUnitsTarget }}</td>
+                <td>{{ target.msValueTarget }}</td>
+                <td>{{ target.targetValue }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

@@ -8,14 +8,14 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use AppBundle\Entity\GsrmExportMappingTemplateFile;
+use AppBundle\Entity\TarViewCurrentTargets;
 
-class GsrmExportMappingTemplateFileType extends AbstractType
+class TarViewCurrentTargetsType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-          ->add('datasetName', ChoiceType::class, array(
+          ->add('dataset', ChoiceType::class, array(
               'expanded' => false,
               'multiple' => false,
               'label' => false,//'Select a dataset :',
@@ -40,14 +40,14 @@ class GsrmExportMappingTemplateFileType extends AbstractType
                   'Will Pharma - PTR (ClientOutputID : 4249)' => '4249',
               )
           ))
-          ->add('download',   SubmitType::class)
+          ->add('see', SubmitType::class)
         ;
     }
 
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults(array(
-          'data_class' => 'AppBundle\Entity\GsrmExportMappingTemplateFile'
+          'data_class' => 'AppBundle\Entity\TarViewCurrentTargets'
         ));
     }
 }

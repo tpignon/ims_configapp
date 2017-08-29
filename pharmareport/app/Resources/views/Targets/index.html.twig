@@ -1,0 +1,28 @@
+{% extends 'layout_targets.html.twig' %}
+
+{% block body %}
+
+    <h3><strong>Upload data by submitting a CSV file :</strong></h3>
+    <div class="well">
+        {{ form_start(importForm) }}
+            {{ form_row(importForm.importTargetsFile, {'attr': {'class': 'btn btn-default'}}) }}
+            {{ form_widget(importForm.submit, {'attr': {'class': 'btn btn-primary'}}) }}
+        {{ form_end(importForm) }}
+    </div><br />
+
+    <h3><strong>Download a template file :</strong></h3>
+    <div class="well">
+        {{ form_start(exportForm) }}
+            {{ form_row(exportForm.dataset) }}
+            {{ form_widget(exportForm.download, {'attr': {'class': 'btn btn-primary'}}) }}
+        {{ form_end(exportForm) }}
+    </div><br />
+
+    <h3><strong>See the current targets :</strong></h3>
+    <div class="well">
+        {{ form_start(viewCurrentTargetsForm) }}
+            {{ form_row(viewCurrentTargetsForm.dataset) }}
+            {{ form_widget(viewCurrentTargetsForm.see, {'attr': {'class': 'btn btn-primary'}, 'label': 'See the mapping' }) }}
+        {{ form_end(viewCurrentTargetsForm) }}
+    </div>
+{% endblock %}
