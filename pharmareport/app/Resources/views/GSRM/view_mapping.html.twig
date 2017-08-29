@@ -12,7 +12,7 @@
             {{ form_row(GeoSalesRepViewMappingForm.dataset) }}
             <center>
               <a href="{{ path('gsrm_index') }}"><button type="button" class="btn btn-info">Index page</button></a>
-              {{ form_widget(GeoSalesRepViewMappingForm.see, {'attr': {'class': 'btn btn-primary'}, 'label': 'See the mapping' }) }}
+              {{ form_widget(GeoSalesRepViewMappingForm.see, {'attr': {'class': 'btn btn-primary'}, 'label': 'See the current mappings' }) }}
             </center>
         {{ form_end(GeoSalesRepViewMappingForm) }}
     </div>
@@ -26,7 +26,7 @@
             </td>
             <td align="right">
                 {{ form_start(downloadForm) }}
-                    {{ form_widget(downloadForm.download, {'attr': {'class': 'btn btn-primary'}}) }}
+                    {{ form_widget(downloadForm.download, {'attr': {'class': 'btn btn-primary'}, 'label': 'Download these mappings as a template file' }) }}
                 {{ form_end(downloadForm) }}
             </td>
         </tr>

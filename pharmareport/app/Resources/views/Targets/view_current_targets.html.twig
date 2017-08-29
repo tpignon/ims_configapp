@@ -7,7 +7,7 @@
             {{ form_start(viewTargetsForm) }}
                 {{ form_row(viewTargetsForm.dataset) }}
                 <a href="{{ path('targets_index') }}"><button type="button" class="btn btn-info">Index page</button></a>
-                {{ form_widget(viewTargetsForm.see, {'attr': {'class': 'btn btn-primary'}, 'label': 'See the mapping' }) }}
+                {{ form_widget(viewTargetsForm.see, {'attr': {'class': 'btn btn-primary'}, 'label': 'See the current targets' }) }}
             {{ form_end(viewTargetsForm) }}
         </div>
     </center>
@@ -21,7 +21,7 @@
             </td>
             <td align="right">
                 {{ form_start(downloadForm) }}
-                    {{ form_widget(downloadForm.download, {'attr': {'class': 'btn btn-primary'}}) }}
+                    {{ form_widget(downloadForm.download, {'attr': {'class': 'btn btn-primary'}, 'label': 'Download these targets as a template file' }) }}
                 {{ form_end(downloadForm) }}
             </td>
         </tr>

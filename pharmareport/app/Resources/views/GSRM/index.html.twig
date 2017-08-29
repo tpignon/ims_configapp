@@ -10,7 +10,7 @@
         {{ form_end(importGeoSalesRepForm) }}
     </div><br />
 
-    <h3><strong>Download a template mapping file :</strong></h3>
+    <h3><strong>Download a CSV file with the current mappings :</strong></h3>{# Download a template mapping file #}
     <div class="well">
         {{ form_start(GeoSalesRepExportTemplateForm) }}
             {{ form_row(GeoSalesRepExportTemplateForm.datasetName) }}
@@ -18,11 +18,11 @@
         {{ form_end(GeoSalesRepExportTemplateForm) }}
     </div><br />
 
-    <h3><strong>See the current mapping :</strong></h3>
+    <h3><strong>See the current mappings :</strong></h3>
     <div class="well">
         {{ form_start(GeoSalesRepViewMappingForm) }}
             {{ form_row(GeoSalesRepViewMappingForm.dataset) }}
-            {{ form_widget(GeoSalesRepViewMappingForm.see, {'attr': {'class': 'btn btn-primary'}, 'label': 'See the mapping' }) }}
+            {{ form_widget(GeoSalesRepViewMappingForm.see, {'attr': {'class': 'btn btn-primary'}, 'label': 'See the current mappings' }) }}
         {{ form_end(GeoSalesRepViewMappingForm) }}
     </div>
 {% endblock %}

@@ -10,7 +10,7 @@
         {{ form_end(importForm) }}
     </div><br />
 
-    <h3><strong>Download a template file :</strong></h3>
+    <h3><strong>Download a CSV file with the current targets :</strong></h3> {# Download a template file :#}
     <div class="well">
         {{ form_start(exportForm) }}
             {{ form_row(exportForm.dataset) }}
@@ -22,7 +22,7 @@
     <div class="well">
         {{ form_start(viewCurrentTargetsForm) }}
             {{ form_row(viewCurrentTargetsForm.dataset) }}
-            {{ form_widget(viewCurrentTargetsForm.see, {'attr': {'class': 'btn btn-primary'}, 'label': 'See the mapping' }) }}
+            {{ form_widget(viewCurrentTargetsForm.see, {'attr': {'class': 'btn btn-primary'}, 'label': 'See the current targets' }) }}
         {{ form_end(viewCurrentTargetsForm) }}
     </div>
 {% endblock %}

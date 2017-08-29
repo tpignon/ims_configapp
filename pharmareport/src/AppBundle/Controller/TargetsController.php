@@ -345,7 +345,7 @@ class TargetsController extends Controller
         $exportTargetsTemplateFileEntity->setDataset($clientoutputid);
 
         $downloadForm = $this->createFormBuilder($exportTargetsTemplateFileEntity)
-            ->add('download', SubmitType::class, array('label' => 'Download these targets as a template file'))
+            ->add('download', SubmitType::class)
             ->getForm()
         ;
 

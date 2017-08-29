@@ -379,7 +379,7 @@ class GeoSalesRepMappingController extends Controller
         $exportMappingFile->setDatasetName($clientoutputid);
 
         $downloadForm = $this->createFormBuilder($exportMappingFile)
-            ->add('download', SubmitType::class, array('label' => 'Download this mapping as a template file'))
+            ->add('download', SubmitType::class)
             ->getForm()
         ;
 
