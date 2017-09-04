@@ -53,6 +53,7 @@ class GsrmImportMapping
                     'sr_last_name' => $data[6],
                     'sr_email' => $data[7]
                 );
+                
                 $row++;
             }
             fclose($handle);
