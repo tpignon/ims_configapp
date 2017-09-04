@@ -5,11 +5,11 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>{% block title %}PharmaReport - Parameters App{% endblock %}</title>
         {% block stylesheets %}
-            <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
-            {# <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}"> #}
+            {# <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> #}
+            <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
             {# <link rel="stylesheet" href="{{ asset('css/main.css') }}"> #}
 
-            <link rel="stylesheet" href="{{ asset('css/index_button.css') }}">
+            <link rel="stylesheet" href="{{ asset('css/index_buttons.css') }}">
             {# <link href='http://fonts.googleapis.com/css?family=Montez' rel='stylesheet' type='text/css'> #}
             {# <link rel="shortcut icon" href="images/favicon.ico"> #}
           	{# <link rel="apple-touch-icon" href="images/apple-touch-icon.png"> #}
@@ -22,17 +22,12 @@
         <div class="container">
             <div id="header">
                 <center>
-                    <h2>PharmaReport - Parameters App</h2>
-                    <p>Web app to manage parameters and configuration</p>
+                    <h1>PharmaReport - Parameters App</h1>
+                    <p><h4>Web app to manage parameters and configuration</h4></p>
                 </center>
             </div>
         </div>
-
-        <div id="headband" class="well well-sm">
-            <center>
-                <h2><strong>Index page</strong></h2>
-            </center>
-        </div>
+        <br />
 
         <div class="container">
           <div id="body">
@@ -41,9 +36,9 @@
                   <br />
                   <p><a href="{{ path('gsrm_index') }}"><button type="button" class="orange-flat-button">Geo-SalesRep mappings</button></a></p>
                   <br />
-                  <p><a href="{{ path('targets_index') }}"><button type="button" class="alizarin-flat-button">Targets</button></a></p>
+                  <p><a href="{{ path('targets_index') }}"><button type="button" class="emerald-flat-button">Targets</button></a></p>
                   <br />
-                  <p><input type="submit" value="Loads status and data quality checks" class="emerald-flat-button"></p>
+                  <p><input type="submit" value="Loads status and data quality checks" class="peter-river-flat-button"></p>
               </center>
               {% endblock %}
           </div>

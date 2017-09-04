@@ -3,11 +3,12 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>{% block title %}GeoSalesRep mappings Module - PharmaReport - Parameters App{% endblock %}</title>
+        <title>{% block title %}Geo-SalesRep mappings Module - PharmaReport - Parameters App{% endblock %}</title>
 
         {% block stylesheets %}
-            <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
             {# <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}"> #}
+            <link rel="stylesheet" href="{{ asset('css/bootstrap.css') }}">
+            {# <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> #}
             {# <link rel="stylesheet" href="{{ asset('css/main.css') }}"> #}
         {% endblock %}
     </head>
@@ -22,10 +23,8 @@
             </div>
         </div>
 
-        <div id="headband" class="well well-sm">
-            <center>
-                <h2><strong>GeoSalesRep mappings</strong></h2>
-            </center>
+        <div id="headband-gsrm" class="well-headband">
+            Geo-SalesRep mappings
         </div>
 
         <div class="container">
