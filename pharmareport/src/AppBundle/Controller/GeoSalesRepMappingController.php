@@ -165,7 +165,7 @@ class GeoSalesRepMappingController extends Controller
             $em->flush();
 
             // Import Form return
-            return $this->redirectToRoute('gsrm_viewLoadResult', array(
+            return $this->redirectToRoute(' gsrm_loadResult', array(
               'currentLoadDate' => $currentLoadDate
             ));
 
@@ -213,7 +213,7 @@ class GeoSalesRepMappingController extends Controller
 
 
     /**
-     * @Route("/gsrm/load_result", name="gsrm_viewLoadResult")
+     * @Route("/gsrm/load_result", name=" gsrm_loadResult")
      */
     public function viewLoadResultAction(Request $request)
     {
@@ -417,7 +417,7 @@ class GeoSalesRepMappingController extends Controller
      */
     public function testAction()
     {
-        return new Response("On affichera ici un écran avec la vue du mapping actuel pour le ClientOutputID : ");
+        return new Response("Hello");//'On affichera ici un écran avec la vue du mapping actuel pour le ClientOutputID : ");
     }
 
     /**

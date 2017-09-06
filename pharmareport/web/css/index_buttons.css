@@ -10,19 +10,19 @@
   color: white;
   text-align: center;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
-  background: #f5af41;
+  background: #ff893f;
   border: 0;
   cursor: pointer;
-  border-bottom: 2px solid #eca83c;
-  -webkit-box-shadow: inset 0 -2px #eca83c;
-  box-shadow: inset 0 -2px #eca83c;
+  border-bottom: 2px solid #ff7824;
+  -webkit-box-shadow: inset 0 -2px #ff7824;
+  box-shadow: inset 0 -2px #ff7824;
 }
 .orange-flat-button:hover {
   color: white;
-  background: #f39c12;
-  border-bottom: 2px solid #e8930c;
-  -webkit-box-shadow: inset 0 -2px #e8930c;
-  box-shadow: inset 0 -2px #e8930c;
+  background: #ff6a0c;
+  border-bottom: 2px solid #f25d00;
+  -webkit-box-shadow: inset 0 -2px #f25d00;
+  box-shadow: inset 0 -2px #f25d00;
 }
 .orange-flat-button:active {
   top: 1px;

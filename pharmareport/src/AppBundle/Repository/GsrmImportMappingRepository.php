@@ -168,21 +168,6 @@ class GsrmImportMappingRepository extends EntityRepository
           ->getQuery()
           ->getSingleScalarResult()
         ;
-
-        /*$qb
-          ->select('count(d.status)')
-          ->where('d.loadDate = :loadDateParam')
-          ->setParameter('loadDateParam', $loadDate)
-          ->andwhere('d.clientOutputId = :clientoutputIdParam')
-          ->setParameter('clientoutputIdParam', $clientoutputId)
-          ->andWhere('d.status = :statusParam')
-          ->setParameter('statusParam', 'REMOVED MAPPING')
-        ;
-
-        return $qb
-          ->getQuery()
-          ->getSingleScalarResult()
-        ;*/
     }
 
 

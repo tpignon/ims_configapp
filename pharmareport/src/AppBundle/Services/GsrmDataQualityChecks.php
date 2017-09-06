@@ -45,8 +45,8 @@ class GsrmDataQualityChecks
     public function onMappings($importMappingRepository, $currentMappingRepository, $DwhDimGeoSalesRepRepository, $em)
     {
         $dataQualityChecks = array();
-        $importMappingsArray = array(); // Will used to find the removed mappings
-        $currentMappingsArray = array(); // Will used to find the removed mappings
+        $importMappingsArray = array(); // Will be used to find the removed mappings
+        $currentMappingsArray = array(); // Will be used to find the removed mappings
 
         // --------------------------------------------------------------------------------------
         // Import mapping status
@@ -113,21 +113,26 @@ class GsrmDataQualityChecks
         $distinctGeoLevelInImportMapping = array();
         $distinctGeoValueInImportMapping = array();
         $distinctGeoValueInDwh = array();
+
         // Distinct client_output_id in IMPORT
-        $distinctClientoutputidInImportMapping = $importMappingRepository->getDistinctClientOutputId();
-        for ($idRow = 0; $idRow < count($distinctClientoutputidInImportMapping); $idRow++)
+        $clientOutputIdArray = array_column($importMappingsArray, 'client_output_id');
+        $distinctClientoutputidArray = array_unique($clientOutputIdArray);
+        //$distinctClientoutputidInImportMapping = array_unique(array_column($importMappingsArray, 'client_output_id'));
+        //$distinctClientoutputidInImportMapping = $importMappingRepository->getDistinctClientOutputId();
+        //for ($idRow = 0; $idRow < count($distinctClientoutputidInImportMapping); $idRow++)
+        foreach ($distinctClientoutputidArray as $dsID)
         {
-            $clientOutputId = $distinctClientoutputidInImportMapping[$idRow]['clientOutputId'];
+            //$clientOutputId = $distinctClientoutputidInImportMapping[$idRow]['clientOutputId'];
             // --------------------------------------------------------------------------------------
             // Missing mappings
             // --------------------------------------------------------------------------------------
             // Distinct geo_level in IMPORT
-            $distinctGeoLevelInImportMapping = $importMappingRepository->getDistinctGeoLevelNumber($clientOutputId);
+            $distinctGeoLevelInImportMapping = $importMappingRepository->getDistinctGeoLevelNumber($dsID);
             for ($levelRow = 0; $levelRow < count($distinctGeoLevelInImportMapping); $levelRow++)
             {
                 $geoLevel = $distinctGeoLevelInImportMapping[$levelRow]['geoLevelNumber'];
-                $distinctGeoValueInImportMapping = $importMappingRepository->getDistinctGeoValue($clientOutputId, $geoLevel);
-                $distinctGeoValueInDWH = $DwhDimGeoSalesRepRepository->getDistinctGeoValue($clientOutputId, 'geoLevel' . $geoLevel);
+                $distinctGeoValueInImportMapping = $importMappingRepository->getDistinctGeoValue($dsID, $geoLevel);
+                $distinctGeoValueInDWH = $DwhDimGeoSalesRepRepository->getDistinctGeoValue($dsID, 'geoLevel' . $geoLevel);
 
                 $importGeoValueArray = array(); // Store value in array to be compared
                 for ($i = 0; $i < count($distinctGeoValueInImportMapping); $i++) {
@@ -143,7 +148,7 @@ class GsrmDataQualityChecks
                 if (count($comparisonDwhWithImport) > '0') {
                     foreach ($comparisonDwhWithImport as $geoValue) {
                         $dataQualityChecks[] = array(
-                            'client_output_id' => $clientOutputId,
+                            'client_output_id' => $dsID,
                             'status' => 'WARNING',
                             'info' => 'There is currently no mapping for geo "' . $geoValue . '" on geo level ' . $geoLevel . '.'
                         );
@@ -154,15 +159,15 @@ class GsrmDataQualityChecks
             // Removed mappings
             // --------------------------------------------------------------------------------------
             // Current mappings array with client_output_id, geo_level, geo_value and geo_team
-            $currentMappings = $currentMappingRepository->getMappingsToFindTheRemovedOnes($clientOutputId);
+            $currentMappings = $currentMappingRepository->getMappingsToFindTheRemovedOnes($dsID);
             for ($row = 0; $row < count($currentMappings); $row++) {
                 $currentMappingGeoLevel = $currentMappings[$row]['geoLevelNumber'];
                 $currentMappingGeoValue = $currentMappings[$row]['geoValue'];
                 $currentMappingGeoTeam = $currentMappings[$row]['geoTeam'];
-                $correspondingImportMapping = $importMappingRepository->getCorrespondingMapping($clientOutputId, $currentMappingGeoLevel, $currentMappingGeoValue, $currentMappingGeoTeam);
+                $correspondingImportMapping = $importMappingRepository->getCorrespondingMapping($dsID, $currentMappingGeoLevel, $currentMappingGeoValue, $currentMappingGeoTeam);
                 if (count($correspondingImportMapping) == 0) {
                     $dataQualityChecks[] = array(
-                        'client_output_id' => $clientOutputId,
+                        'client_output_id' => $dsID,
                         'status' => 'REMOVED MAPPING',
                         'info' => 'Mapping for team "' . $currentMappingGeoTeam . '" and geo "' . $currentMappingGeoValue . '" on level ' . $currentMappingGeoLevel . ' will be removed.'
                     );
@@ -178,11 +183,20 @@ class GsrmDataQualityChecks
             //    - No MISSING mapping
             //    - No REMOVED mapping
             // --------------------------------------------------------------------------------------
-            $dataQualityChecks[] = array(
-                'client_output_id' => $importMappingClientoutputId,
-                'status' => 'NO CHANGE',
-                'info' => 'No change in import mappings for this client_output_id ' . $importMappingClientoutputId . '.'
-            );
+            $nbrOfDataQualityChecksInArray = 0;
+            $clientOutputIdInDataQualityChecksArray = array_column($dataQualityChecks, 'client_output_id');
+            foreach ($clientOutputIdInDataQualityChecksArray as $DQC_ClientOutputId) {
+                if ($DQC_ClientOutputId == $dsID) {
+                    $nbrOfDataQualityChecksInArray++;
+                }
+            }
+            if ($nbrOfDataQualityChecksInArray == 0) {
+                $dataQualityChecks[] = array(
+                    'client_output_id' => $dsID,
+                    'status' => 'NO CHANGE',
+                    'info' => 'No change in import mappings for this client_output_id ' . $dsID . '.'
+                );
+            }            
         }
 
         // --------------------------------------------------------------------------------------

@@ -2,6 +2,8 @@
 
 namespace AppBundle\Services;
 
+use AppBundle\Encoding;
+
 class GsrmImportMapping
 {
 
@@ -28,7 +30,7 @@ class GsrmImportMapping
 
             while (($data = fgetcsv($handle, 1500, ";")) !== FALSE) // $data = array containing data of one row
             {
-                $data = array_map("utf8_encode", $data); // to allow special character like accents in csv import file
+                //$data = array_map("utf8_encode", $data); // to allow special character like accents in csv import file
                 $numberItemsOnRow = count($data);
 
                 if ($numberItemsOnRow != $maxNumberItemsOnRow) {
@@ -49,11 +51,11 @@ class GsrmImportMapping
                     'geo_team' => $data[2],
                     'geo_level_number' => $data[3],
                     'geo_value' => $data[4],
-                    'sr_first_name' => $data[5],
-                    'sr_last_name' => $data[6],
-                    'sr_email' => $data[7]
+                    'sr_first_name' => Encoding::toUTF8($data[5]),//iconv(mb_detect_encoding($data[5]), 'ISO-8859-1//TRANSLIT//IGNORE', $data[5]),//mb_detect_encoding($data[5]), //$data[5],
+                    'sr_last_name' => Encoding::toUTF8($data[6]),
+                    'sr_email' => Encoding::toUTF8($data[7])
                 );
-                
+
                 $row++;
             }
             fclose($handle);
