@@ -61,6 +61,7 @@ class GsrmImportMapping
 
     /**
      * @ORM\Column(name="geo_team", type="string", length=150)
+     * @Assert\NotBlank(message="Column MarketId (GeoTeam) should not be blank.")
      * @Assert\Type("string", message="The VersionGeoStructureCode {{ value }} is not a valid {{ type }}.")
      * @Assert\Length(max=150, maxMessage="The MarketID (GeoTeam) {{ value }} is too long. It is limited to 150 characters.")
      */
