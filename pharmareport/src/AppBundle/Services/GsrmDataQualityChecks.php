@@ -17,7 +17,7 @@ class GsrmDataQualityChecks
             $distinctVersionGeoStructureCodeInImportMapping = $importMappingRepository->getDistinctVersionGeoStructureCode($currentClientoutputid);
             $distinctVersionGeoStructureCodeInCurrentMapping = $currentMappingRepository->getDistinctVersionGeoStructureCode($currentClientoutputid);
 
-            // Check if version_geo_structure_code is unique
+            // Check if version_geo_structure_code column has only one value by datasetID
             if (count($distinctVersionGeoStructureCodeInImportMapping) > '1')
             {
                 $dataQualityChecks = array(
@@ -53,7 +53,8 @@ class GsrmDataQualityChecks
         // --------------------------------------------------------------------------------------
         // Loop on all import mappings
         $listImportMappingsArray = $importMappingRepository->findAll();
-        foreach($listImportMappingsArray as $importMapping) {
+        foreach($listImportMappingsArray as $importMapping)
+        {
             $importMappingClientoutputId = $importMapping->getClientOutputId();
             $importMappingGeoLevel = $importMapping->getGeoLevelNumber();
             $importMappingGeoValue = $importMapping->getGeoValue();
@@ -117,12 +118,8 @@ class GsrmDataQualityChecks
         // Distinct client_output_id in IMPORT
         $clientOutputIdArray = array_column($importMappingsArray, 'client_output_id');
         $distinctClientoutputidArray = array_unique($clientOutputIdArray);
-        //$distinctClientoutputidInImportMapping = array_unique(array_column($importMappingsArray, 'client_output_id'));
-        //$distinctClientoutputidInImportMapping = $importMappingRepository->getDistinctClientOutputId();
-        //for ($idRow = 0; $idRow < count($distinctClientoutputidInImportMapping); $idRow++)
         foreach ($distinctClientoutputidArray as $dsID)
         {
-            //$clientOutputId = $distinctClientoutputidInImportMapping[$idRow]['clientOutputId'];
             // --------------------------------------------------------------------------------------
             // Missing mappings
             // --------------------------------------------------------------------------------------
@@ -196,7 +193,7 @@ class GsrmDataQualityChecks
                     'status' => 'NO CHANGE',
                     'info' => 'No change in import mappings for this client_output_id ' . $dsID . '.'
                 );
-            }            
+            }
         }
 
         // --------------------------------------------------------------------------------------

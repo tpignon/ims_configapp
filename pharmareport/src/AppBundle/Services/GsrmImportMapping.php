@@ -11,7 +11,6 @@ class GsrmImportMapping
     {
 
         if (!(file_exists($file))) {
-            $error_row = $row+1;
             $geosalesrepMappings = array(
                 'error_type' => 'file_does_not_exist',
                 'error_file' => $file

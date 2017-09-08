@@ -8,7 +8,6 @@ class TarImportTargets
     {
 
         if (!(file_exists($file))) {
-            $error_row = $row+1;
             $importTargetsArray = array(
                 'error_type' => 'file_does_not_exist',
                 'error_file' => $file
