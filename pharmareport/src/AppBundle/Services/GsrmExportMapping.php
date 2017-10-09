@@ -18,7 +18,7 @@ class GsrmExportMapping
             foreach ($geoSalesRepMappings as $geoSalesRepMapping) {
                 fputcsv(
                     $handle,
-                    array(
+                    array_map('utf8_decode',array(
                       $geoSalesRepMapping->getClientOutputId(),
                       $geoSalesRepMapping->getVersionGeoStructureCode(),
                       $geoSalesRepMapping->getGeoTeam(),
@@ -27,7 +27,7 @@ class GsrmExportMapping
                       $geoSalesRepMapping->getSrFirstName(),
                       $geoSalesRepMapping->getSrLastName(),
                       preg_replace('/\s+/', '', $geoSalesRepMapping->getSrEmail())
-                    ),
+                    )),
                     ";"
                 );
             }
