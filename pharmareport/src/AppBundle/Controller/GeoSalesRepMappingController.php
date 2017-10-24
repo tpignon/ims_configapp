@@ -165,8 +165,8 @@ class GeoSalesRepMappingController extends Controller
             $em->flush();
 
             // Import Form return
-            return $this->redirectToRoute(' gsrm_loadResult', array(
-              'currentLoadDate' => $currentLoadDate
+            return $this->redirectToRoute('gsrm_loadResult', array(
+                'currentLoadDate' => $currentLoadDate
             ));
 
         }

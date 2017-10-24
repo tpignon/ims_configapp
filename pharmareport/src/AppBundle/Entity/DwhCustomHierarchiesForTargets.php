@@ -31,6 +31,13 @@ class DwhCustomHierarchiesForTargets
     /**
      * @var string
      *
+     * @ORM\Column(name="product_market_level", type="string", length=500)
+     */
+    private $productMarketLevel;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="product_market_hierarchy", type="string", length=255)
      */
     private $productMarketHierarchy;
@@ -38,9 +45,9 @@ class DwhCustomHierarchiesForTargets
     /**
      * @var string
      *
-     * @ORM\Column(name="product_market_value", type="string", length=500)
+     * @ORM\Column(name="region_level", type="string", length=500)
      */
-    private $productMarketValue;
+    private $regionLevel;
 
     /**
      * @var string
@@ -48,13 +55,6 @@ class DwhCustomHierarchiesForTargets
      * @ORM\Column(name="region_hierarchy", type="string", length=255)
      */
     private $regionHierarchy;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="region_value", type="string", length=500)
-     */
-    private $regionValue;
 
 
     /**
@@ -92,6 +92,30 @@ class DwhCustomHierarchiesForTargets
     }
 
     /**
+     * Set productMarketValue
+     *
+     * @param string $productMarketValue
+     *
+     * @return DwhCustomHierarchiesForTargets
+     */
+    public function setProductMarketLevel($productMarketLevel)
+    {
+        $this->productMarketLevel = $productMarketLevel;
+
+        return $this;
+    }
+
+    /**
+     * Get productMarketValue
+     *
+     * @return string
+     */
+    public function getProductMarketLevel()
+    {
+        return $this->productMarketLevel;
+    }
+
+    /**
      * Set productMarketHierarchy
      *
      * @param string $productMarketHierarchy
@@ -116,27 +140,27 @@ class DwhCustomHierarchiesForTargets
     }
 
     /**
-     * Set productMarketValue
+     * Set regionValue
      *
-     * @param string $productMarketValue
+     * @param string $regionValue
      *
      * @return DwhCustomHierarchiesForTargets
      */
-    public function setProductMarketValue($productMarketValue)
+    public function setRegionLevel($regionLevel)
     {
-        $this->productMarketValue = $productMarketValue;
+        $this->regionLevel = $regionLevel;
 
         return $this;
     }
 
     /**
-     * Get productMarketValue
+     * Get regionValue
      *
      * @return string
      */
-    public function getProductMarketValue()
+    public function getRegionLevel()
     {
-        return $this->productMarketValue;
+        return $this->regionLevel;
     }
 
     /**
@@ -161,29 +185,5 @@ class DwhCustomHierarchiesForTargets
     public function getRegionHierarchy()
     {
         return $this->regionHierarchy;
-    }
-
-    /**
-     * Set regionValue
-     *
-     * @param string $regionValue
-     *
-     * @return DwhCustomHierarchiesForTargets
-     */
-    public function setRegionValue($regionValue)
-    {
-        $this->regionValue = $regionValue;
-
-        return $this;
-    }
-
-    /**
-     * Get regionValue
-     *
-     * @return string
-     */
-    public function getRegionValue()
-    {
-        return $this->regionValue;
     }
 }

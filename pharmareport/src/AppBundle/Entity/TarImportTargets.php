@@ -66,6 +66,11 @@ class TarImportTargets
     private $regionLevel;
 
     /**
+     * @ORM\Column(name="period_type", type="string", length=100, nullable=true)
+     */
+    private $periodType;
+
+    /**
      * @ORM\Column(name="period", type="integer")
      * @Assert\NotBlank(message="Period should not be blank.")
      */
@@ -90,6 +95,11 @@ class TarImportTargets
      * @ORM\Column(name="target_value", type="decimal", precision=25, scale=15, nullable=true)
      */
     private $targetValue;
+
+    /**
+     * @ORM\Column(name="target_status", type="string", length=255, nullable=true)
+     */
+    private $targetStatus;
 
 
     /**
@@ -130,6 +140,16 @@ class TarImportTargets
     public function getRegionLevel()
     {
         return $this->regionLevel;
+    }
+
+    /**
+     * Get periodType
+     *
+     * @return string
+     */
+    public function getPeriodType()
+    {
+        return $this->periodType;
     }
 
     /**
@@ -182,6 +202,16 @@ class TarImportTargets
         return $this->targetValue;
     }
 
+    /**
+     * Get targetStatus
+     *
+     * @return string
+     */
+    public function getTargetStatus()
+    {
+        return $this->targetStatus;
+    }
+
 
     /**
      * Set clientOutputId
@@ -211,6 +241,16 @@ class TarImportTargets
     public function setRegionLevel($regionLevel)
     {
         $this->regionLevel = $regionLevel;
+    }
+
+    /**
+     * Set periodType
+     *
+     * @param string $periodType
+     */
+    public function setPeriodType($periodType)
+    {
+        $this->periodType = $periodType;
     }
 
     /**
@@ -262,6 +302,17 @@ class TarImportTargets
     {
         $this->targetValue = $targetValue;
     }
+
+    /**
+     * Set targetStatus
+     *
+     * @param string $targetStatus
+     */
+    public function setTargetStatus($targetStatus)
+    {
+        $this->targetStatus = $targetStatus;
+    }
+
 
     public function toArray()
     {

@@ -32,3 +32,19 @@ services:
         class: AppBundle\Services\TarImportTargets
     TarExportTargets:
         class: AppBundle\Services\TarExportTargets
+    ImportFile:
+        class: AppBundle\Services\ImportFile
+    app.multidimensional_arrays_diff:
+      class: AppBundle\Services\MultidimensionalArraysDiff
+    app.unexpected_data:
+        class: AppBundle\DataQualityChecks\UnexpectedData
+    app.new_data:
+        class: AppBundle\DataQualityChecks\NewData
+    app.changed_data:
+        class: AppBundle\DataQualityChecks\ChangedData
+    app.unchanged_data:
+        class: AppBundle\DataQualityChecks\UnchangedData
+    app.removed_data:
+        class: AppBundle\DataQualityChecks\RemovedData
+    app.duplicate_data:
+        class: AppBundle\DataQualityChecks\DuplicateData

@@ -10,4 +10,27 @@ namespace AppBundle\Repository;
  */
 class DwhCustomHierarchiesForTargetsRepository extends \Doctrine\ORM\EntityRepository
 {
+
+    public function getDistinctValues($columns, $clientoutputid)
+    {
+        $alias = 'd';
+        $qb = $this->createQueryBuilder($alias);
+
+        foreach ($columns as &$columnName) {
+            $columnName = $alias . '.' . $columnName;
+        }
+
+        $qb
+          ->select($columns)
+          ->where($alias . '.clientOutputId = :id')
+          ->setParameter('id', $clientoutputid)
+          ->distinct()
+        ;
+
+        return $qb
+          ->getQuery()
+          ->getArrayResult()
+        ;
+    }
+
 }

@@ -30,6 +30,10 @@ class TarCurrentTargets
      */
     private $regionLevel;
     /**
+     * @ORM\Column(name="period_type", type="string", length=100, nullable=true)
+     */
+    private $periodType;
+    /**
      * @ORM\Column(name="period", type="integer")
      */
     private $period;
@@ -89,6 +93,16 @@ class TarCurrentTargets
     public function getRegionLevel()
     {
         return $this->regionLevel;
+    }
+
+    /**
+     * Get periodType
+     *
+     * @return string
+     */
+    public function getPeriodType()
+    {
+        return $this->periodType;
     }
 
     /**
@@ -170,6 +184,16 @@ class TarCurrentTargets
     public function setRegionLevel($regionLevel)
     {
         $this->regionLevel = $regionLevel;
+    }
+
+    /**
+     * Set periodType
+     *
+     * @param string $periodType
+     */
+    public function setPeriodType($periodType)
+    {
+        $this->periodType = $periodType;
     }
 
     /**

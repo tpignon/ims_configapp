@@ -2,6 +2,67 @@
 
 {% block body %}
 
+    <h3><strong>Data Quality Checks :</strong></h3>
+    <div class="jumbotron">
+        {% if overviewStatus.total_nbr_of_warnings > 1 %}
+            <h4>Overall status:</h4>
+            <ul>
+                <li><strong>{{ overviewStatus.total_nbr_of_warnings }} warnings</strong></li>
+                <li>{{ overviewStatus.total_nbr_of_removed_data }} mapping(s) will be removed</li>
+                <li>{{ overviewStatus.total_nbr_of_changed_data }} mapping(s) will be changed</li>
+                <li>{{ overviewStatus.total_nbr_of_new_data }} new mapping(s)</li>
+                <li>{{ overviewStatus.total_nbr_of_unchanged_data }} unchanged mapping(s)</li>
+            </ul>
+            <br />
+            {% for item in statusByClientoutputId %}
+                {% if item.nbr_of_warnings > 1 %}
+                    <h4>ClientoutputId <strong>{{ item.clientoutputId }}</strong> - {{ item.nbr_of_import_data }} mappings, <strong>{{ item.nbr_of_warnings }} warnings :</strong></h4>
+                {% elseif item.nbr_of_warnings == 1 %}
+                    <h4>ClientoutputId <strong>{{ item.clientoutputId }}</strong> - {{ item.nbr_of_import_data }} mappings, <strong>{{ item.nbr_of_warnings }} warning :</strong></h4>
+                {% else %}
+                    <h4>ClientoutputId <strong>{{ item.clientoutputId }}</strong> - {{ item.nbr_of_import_data }} mappings, <strong>{{ item.nbr_of_warnings }} warning</strong></h4>
+                {% endif %}
+                <ul>
+                {% if item.nbr_of_current_data == 0 %}
+                    <li>There was no Geo-SalesRep mapping before, this is the first one.</li>
+                {% endif %}
+                {% for element in dataQualityChecks %}
+                    {% if element.clientOutputId == item.clientoutputId and element.status == 'WARNING' %}
+                        <li>{{ element.info }}</li>
+                    {% endif %}
+                {% endfor %}
+                </ul><br />
+            {% endfor %}
+        {% else %}
+            <h4>Overall status:</h4>
+            <ul>
+                <li><strong>{{ overviewStatus.total_nbr_of_warnings }} warning</strong></li>
+                <li>{{ overviewStatus.total_nbr_of_removed_data }} mapping(s) will be removed</li>
+                <li>{{ overviewStatus.total_nbr_of_changed_data }} mapping(s) will be changed</li>
+                <li>{{ overviewStatus.total_nbr_of_new_data }} new mapping(s)</li>
+                <li>{{ overviewStatus.total_nbr_of_unchanged_data }} unchanged mapping(s)</li>
+            </ul>
+            <br />
+            {% for item in statusByClientoutputId %}
+                {% if item.nbr_of_warnings == 1 %}
+                    <h4>ClientoutputId <strong>{{ item.clientoutputId }}</strong> - {{ item.nbr_of_import_data }} mappings, <strong>{{ item.nbr_of_warnings }} warning</strong> :</h4>
+                {% else %}
+                    <h4>ClientoutputId <strong>{{ item.clientoutputId }}</strong> - {{ item.nbr_of_import_data }} mappings, <strong>{{ item.nbr_of_warnings }} warning</strong></h4>
+                {% endif %}
+                <ul>
+                {% if item.nbr_of_current_data == 0 %}
+                    <li>There was no Geo-SalesRep mapping before, this is the first one.</li>
+                {% endif %}
+                {% for element in dataQualityChecks %}
+                    {% if element.clientOutputId == item.clientoutputId and element.status == 'WARNING' %}
+                        <li>{{ element.info }}</li>
+                    {% endif %}
+                {% endfor %}
+                </ul><br />
+            {% endfor %}
+        {% endif %}
+    </div>
+
     <div>
         <center>
             {{ form_start(confirmForm) }}

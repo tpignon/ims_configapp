@@ -35,8 +35,8 @@ class TarExportTargetsTemplateFileType extends AbstractType
                   'Pfizer S.A. - XPO - Rheumato (ClientOutputID : 97)' => '97',
                   'Pfizer S.A. - XPO - Dermato (ClientOutputID : 98)' => '98',
                   'Therabel - BCD (ClientOutputID : 3436)' => '3436',
-                  'Therabel - PTR (ClientOutputID : 3980)' => '3980',
                   'Therabel - XPlain (ClientOutputID : 3438)' => '3438',
+                  'Therabel - PTR (ClientOutputID : 4351)' => '4351',//'Therabel - PTR (ClientOutputID : 3980)' => '3980',
                   'Will Pharma - PTR (ClientOutputID : 4249)' => '4249',
               )
           ))

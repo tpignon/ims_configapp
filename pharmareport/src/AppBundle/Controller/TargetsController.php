@@ -12,11 +12,11 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse; // used for the export
 use AppBundle\Entity\TarCurrentTargets;
+use AppBundle\Entity\TarDataQualityChecks;
+use AppBundle\Entity\TarExportTargetsTemplateFile;
 use AppBundle\Entity\TarImportTargets;
 use AppBundle\Entity\TarImportTargetsFile;
-use AppBundle\Entity\TarExportTargetsTemplateFile;
 use AppBundle\Entity\TarViewCurrentTargets;
-//use AppBundle\Entity\TarDataQualityChecks;
 use AppBundle\Form\TarImportTargetsFileType;
 use AppBundle\Form\TarExportTargetsTemplateFileType;
 use AppBundle\Form\TarViewCurrentTargetsType;
@@ -33,10 +33,10 @@ class TargetsController extends Controller
         // Import file
         // ================================================================================================================
 
-        $importTargetsFile = new TarImportTargetsFile();
-        $importTargetsForm = $this->createForm(TarImportTargetsFileType::class, $importTargetsFile);
+        $importFile = new TarImportTargetsFile();
+        $importFileForm = $this->createForm(TarImportTargetsFileType::class, $importFile);
 
-        if ($request->isMethod('POST') && $importTargetsForm->handleRequest($request)->isValid())
+        if ($request->isMethod('POST') && $importFileForm->handleRequest($request)->isValid())
         {
             // --------------------------------------------------------------
             // Import mappings into an array
@@ -46,47 +46,33 @@ class TargetsController extends Controller
             $targetsFileFolder = $this->getParameter('targets_csvfile_folder');
             $targetsFileName = $this->getParameter('targets_csvfile_filename');
             $targetsFile = $targetsFileFolder . '/' . $targetsFileName;
-            $file = $importTargetsFile->getImportTargetsFile();
+            $file = $importFile->getImportTargetsFile();
             $file->move($targetsFileFolder, $targetsFileName);
 
-            $tarImportService = $this->get('TarImportTargets');
             $importTargetsArray = array(); // This array will contain elements extracted from csv file
-            $importTargetsArray = $tarImportService->importCSV($targetsFile); // Row 0 contains headers
-            if (array_key_exists('error_type', $importTargetsArray))
+            $importTargetsArray = $this->get('ImportFile')->importCSV($targetsFile, 9); // Row 0 contains headers
+            if (array_key_exists('error', $importTargetsArray))
             {
-                // File doesn't exist
-                if ($importTargetsArray['error_type'] == 'file_does_not_exist')
-                {
-                    return $this->render('Targets/error_submit_file.html.twig', array(
-                        'error_message' => 'File "' . $importTargetsArray['error_file'] . '" doesn\'t exist.',
-                    ));
-                }
-                // Bad number of columns
-                if ($importTargetsArray['error_type'] == 'nbr_items_on_row')
-                {
-                    return $this->render('Targets/error_submit_file.html.twig', array(
-                        'error_row' => $importTargetsArray['error_row'],
-                        'error_message' => $importTargetsArray['error_nbr_of_columns'] . ' items found --> ' . $importTargetsArray['max_nbr_of_columns'] . ' items (columns) are expected.',
-                    ));
-                }
+                return $this->render('Alerts/error_submit_file.html.twig', array(
+                    'error' => $importTargetsArray['error'],
+                ));
             }
-
-            $em = $this->getDoctrine()->getManager();
 
             // --------------------------------------------------------------
             // Insert targets into MySQL DB, table "tar_import_targets"
             // --------------------------------------------------------------
-            for ($row = 1; $row < count($importTargetsArray); $row++) // Start at 1 because the first row contains headers
-            {
+            $em = $this->getDoctrine()->getManager();
+            for ($row = 1; $row < count($importTargetsArray); $row++) {// Start at 1 because the first row contains headers
                 $importTargetsEntity = new TarImportTargets();
-                $importTargetsEntity->setClientOutputId($importTargetsArray[$row]['client_output_id']);
-                $importTargetsEntity->setProductMarketLevel($importTargetsArray[$row]['product_market_level']);
-                $importTargetsEntity->setRegionLevel($importTargetsArray[$row]['region_level']);
-                $importTargetsEntity->setPeriod($importTargetsArray[$row]['period']);
-                $importTargetsEntity->setTargetUnits($importTargetsArray[$row]['target_units']);
-                $importTargetsEntity->setMsUnitsTarget($importTargetsArray[$row]['ms_units_target']);
-                $importTargetsEntity->setMsValueTarget($importTargetsArray[$row]['ms_value_target']);
-                $importTargetsEntity->setTargetValue($importTargetsArray[$row]['target_value']);
+                $importTargetsEntity->setClientOutputId($importTargetsArray[$row][0]);
+                $importTargetsEntity->setProductMarketLevel($importTargetsArray[$row][1]);
+                $importTargetsEntity->setRegionLevel($importTargetsArray[$row][2]);
+                $importTargetsEntity->setPeriodType($importTargetsArray[$row][3]);
+                $importTargetsEntity->setPeriod($importTargetsArray[$row][4]);
+                if (is_numeric($importTargetsArray[$row][5])) {$importTargetsEntity->setTargetUnits($importTargetsArray[$row][5]);} else {$importTargetsEntity->setTargetUnits(null);}
+                if (is_numeric($importTargetsArray[$row][6])) {$importTargetsEntity->setMsUnitsTarget($importTargetsArray[$row][6]);} else {$importTargetsEntity->setMsUnitsTarget(null);}
+                if (is_numeric($importTargetsArray[$row][7])) {$importTargetsEntity->setMsValueTarget($importTargetsArray[$row][7]);} else {$importTargetsEntity->setMsValueTarget(null);}
+                if (is_numeric($importTargetsArray[$row][8])) {$importTargetsEntity->setTargetValue($importTargetsArray[$row][8]);} else {$importTargetsEntity->setTargetValue(null);}
 
                 $validator = $this->get('validator');
                 $errors = $validator->validate($importTargetsEntity);
@@ -99,16 +85,14 @@ class TargetsController extends Controller
                     {
                         $error_message[] = $error->getMessage();
                     }
-                    return $this->render('Targets/error_asserts.html.twig', array(
+                    return $this->render('Alerts/error_asserts.html.twig', array(
                         'error_row' => $error_row,
                         'error_message' => $error_message,
                     ));
                 }
-                else
-                {
+                else {
                     $em->persist($importTargetsEntity);
                 }
-
             }
 
             // Truncate table "tar_import_targets"
@@ -120,13 +104,182 @@ class TargetsController extends Controller
             // --------------------------------------------------------------
             // Data quality checks (DQC)
             // --------------------------------------------------------------
+            $importRepository = $em->getRepository('AppBundle:TarImportTargets');
+            $currentRepository = $em->getRepository('AppBundle:TarCurrentTargets');
+            $dwhRepository = $em->getRepository('AppBundle:DwhCustomHierarchiesForTargets');
+            $dqcRepository = $em->getRepository('AppBundle:TarDataQualityChecks');
+
+            $duplicateImportTargetsEntitiesArray = array();
+            $dataQualityChecksArray = array();
+
+            // On parcourt chaque import target
+            $importTargetsEntities = $importRepository->findAll();
+            foreach ($importTargetsEntities as $importTargetsEntity) {
+                // On définit son status grace aux méthodes suivantes:
+
+                // - isUnexpected
+                if ($this->get('app.unexpected_data')->isUnexpected($dwhRepository, array(
+                    'clientOutputId' => $importTargetsEntity->getClientOutputId(),
+                    'productMarketLevel' => $importTargetsEntity->getProductMarketLevel(),
+                    'regionLevel' => $importTargetsEntity->getRegionLevel()
+                ))) {
+                    $importTargetsEntity->setTargetStatus('UNEXPECTED');
+                    // Data quality check
+                    $dataQualityChecksArray[] = array(
+                        'clientOutputId' => $importTargetsEntity->getClientOutputId(),
+                        'status' => 'WARNING',
+                        'info' => 'Unexpected target: product market "' . $importTargetsEntity->getProductMarketLevel() . '", region "' . $importTargetsEntity->getRegionLevel() . '".'
+                    );
+                }
+
+                // - isNew
+                if ($this->get('app.new_data')->isNew($currentRepository, array(
+                    'clientOutputId' => $importTargetsEntity->getClientOutputId(),
+                    'productMarketLevel' => $importTargetsEntity->getProductMarketLevel(),
+                    'regionLevel' => $importTargetsEntity->getRegionLevel(),
+                    'period' => $importTargetsEntity->getPeriod()
+                ))) {
+                    $importTargetsEntity->setTargetStatus('NEW');
+                    // Data quality check
+                    $dataQualityChecksArray[] = array(
+                        'clientOutputId' => $importTargetsEntity->getClientOutputId(),
+                        'status' => 'NEW TARGET',
+                        'info' => 'New target: product market "' . $importTargetsEntity->getProductMarketLevel() . '", region "' . $importTargetsEntity->getRegionLevel() . '", period "' . $importTargetsEntity->getPeriod() . '".'
+                    );
+                }
+
+                // - isChanged
+                $fixedComparativeCriteria = array(
+                    'clientOutputId' => $importTargetsEntity->getClientOutputId(),
+                    'productMarketLevel' => $importTargetsEntity->getProductMarketLevel(),
+                    'regionLevel' => $importTargetsEntity->getRegionLevel(),
+                    'period' => $importTargetsEntity->getPeriod()
+                );
+                $changeableCriteria = array(
+                    'targetUnits' => $importTargetsEntity->getTargetUnits(),
+                    'targetValue' => $importTargetsEntity->getTargetValue(),
+                    'msUnitsTarget' => $importTargetsEntity->getMsUnitsTarget(),
+                    'msValueTarget' => $importTargetsEntity->getMsValueTarget()
+                );
+                if ($this->get('app.changed_data')->isChanged($currentRepository, $fixedComparativeCriteria, $changeableCriteria)) {
+                    $importTargetsEntity->setTargetStatus('CHANGED');
+                    // Data quality check
+                    $dataQualityChecksArray[] = array(
+                        'clientOutputId' => $importTargetsEntity->getClientOutputId(),
+                        'status' => 'CHANGED TARGET',
+                        'info' => 'Units or value has been changed for the following target: product market "' . $importTargetsEntity->getProductMarketLevel() . '", region "' . $importTargetsEntity->getRegionLevel() . '", period "' . $importTargetsEntity->getPeriod() . '".'
+                    );
+                }
+
+                // - isUnchanged
+                if ($this->get('app.unchanged_data')->isUnchanged($currentRepository, array(
+                    'clientOutputId' => $importTargetsEntity->getClientOutputId(),
+                    'productMarketLevel' => $importTargetsEntity->getProductMarketLevel(),
+                    'regionLevel' => $importTargetsEntity->getRegionLevel(),
+                    'period' => $importTargetsEntity->getPeriod(),
+                    'targetUnits' => $importTargetsEntity->getTargetUnits(),
+                    'targetValue' => $importTargetsEntity->getTargetValue(),
+                    'msUnitsTarget' => $importTargetsEntity->getMsUnitsTarget(),
+                    'msValueTarget' => $importTargetsEntity->getMsValueTarget()
+                ))) {
+                    $importTargetsEntity->setTargetStatus('UNCHANGED');
+                }
+
+                // - isDuplicate
+                if ($this->get('app.duplicate_data')->isDuplicate($importRepository, array(
+                    'clientOutputId' => $importTargetsEntity->getClientOutputId(),
+                    'productMarketLevel' => $importTargetsEntity->getProductMarketLevel(),
+                    'regionLevel' => $importTargetsEntity->getRegionLevel(),
+                    'period' => $importTargetsEntity->getPeriod()
+                ))) {
+                    $duplicateImportTargetsEntitiesArray[] = $importTargetsEntity;
+                    // Data quality check
+                    $dataQualityChecksArray[] = array(
+                        'clientOutputId' => $importTargetsEntity->getClientOutputId(),
+                        'status' => 'WARNING',
+                        'info' => 'Duplicate target: product market "' . $importTargetsEntity->getProductMarketLevel() . '", region "' . $importTargetsEntity->getRegionLevel() . '", period "' . $importTargetsEntity->getPeriod() . '".'
+                    );
+                }
+
+                $em->persist($importTargetsEntity);
+            }
+            $em->flush();
+
+            // On parcourt les current targets pour voir s'il y en a qui vont être supprimées
+            // Si oui, on les stocke dans un array
+            $removedCurrentTargetsEntitiesArray = array();
+            $importClientoutputids = $importRepository->getDistinctClientOutputId();
+            foreach ($importClientoutputids as $importClientoutputid) {
+                $currentTargetsEntities = $currentRepository->findBy($importClientoutputid);
+                foreach ($currentTargetsEntities as $currentTargetsEntity) {
+                    // isRemoved
+                    if ($this->get('app.removed_data')->isRemoved($importRepository, array(
+                        'clientOutputId' => $currentTargetsEntity->getClientOutputId(),
+                        'productMarketLevel' => $currentTargetsEntity->getProductMarketLevel(),
+                        'regionLevel' => $currentTargetsEntity->getRegionLevel(),
+                        'period' => $currentTargetsEntity->getPeriod()
+                    ))) {
+                        $removedCurrentTargetsEntitiesArray[] = $currentTargetsEntity;
+                        // Data quality check
+                        $dataQualityChecksArray[] = array(
+                            'clientOutputId' => $currentTargetsEntity->getClientOutputId(),
+                            'status' => 'REMOVED TARGET',
+                            'info' => 'Following target has been removed: product market "' . $currentTargetsEntity->getProductMarketLevel() . '", region "' . $currentTargetsEntity->getRegionLevel() . '", period "' . $currentTargetsEntity->getPeriod() . '".'
+                        );
+                    }
+                }
+            }
+
+            // On récupère:
+            // - unexpected
+            $unexpectedImportTargetsEntitiesArray = $importRepository->findBy(array('targetStatus' => 'UNEXPECTED'));
+            // - new
+            $newImportTargetsEntitiesArray = $importRepository->findBy(array('targetStatus' => 'NEW'));
+            // - changed
+            $changedImportTargetsEntitiesArray = $importRepository->findBy(array('targetStatus' => 'CHANGED'));
+            // - unchanged
+            $unchangedImportTargetsEntitiesArray = $importRepository->findBy(array('targetStatus' => 'UNCHANGED'));
+            // - removed
+            //$removedCurrentTargetsEntitiesArray
+            // - duplicates (currently no implemented for targets)
+            //$duplicateImportTargetsEntitiesArray
+
+            // On insère les DQC dans la table DQC
+            foreach ($dataQualityChecksArray as $dataQualityCheckArray) {
+                $dataQualityCheck = new TarDataQualityChecks();
+                $dataQualityCheck->setClientOutputId($dataQualityCheckArray['clientOutputId']);
+                $dataQualityCheck->setLoadDate($currentLoadDate);
+                $dataQualityCheck->setStatus($dataQualityCheckArray['status']);
+                $dataQualityCheck->setInfo($dataQualityCheckArray['info']);
+                $em->persist($dataQualityCheck);
+            }
+
+            $em->flush();
+
+
+            // On affiche le résultat:
+            // - warnings (unexpected, missing, duplicates)
+            // - removed
+            // - changed
+            // - new
+            // - unchanged
+
+            // --------------------------------------------------------------
+            /*
+            if (isset($unexpectedResults)) {
+                return $this->render('Targets/test.html.twig', array(
+                    'results' => $unexpectedResults//$dwhValue->getProductMarketLevel(),
+                ));
+            }
+            */
+            // --------------------------------------------------------------
 
 
             // --------------------------------------------------------------
             // Import Form Return
             // --------------------------------------------------------------
             return $this->redirectToRoute('targets_view_load_result', array(
-              'currentLoadDate' => $currentLoadDate
+                'currentLoadDate' => $currentLoadDate
             ));
 
         }
@@ -165,7 +318,7 @@ class TargetsController extends Controller
         // General return
         // ================================================================================================================
         return $this->render('Targets/index.html.twig', array(
-            'importForm' => $importTargetsForm->createView(),
+            'importForm' => $importFileForm->createView(),
             'exportForm' => $targetsExportTemplateForm->createView(),
             'viewCurrentTargetsForm' => $tarViewCurrentTargetsForm->createView(),
         ));
@@ -179,53 +332,41 @@ class TargetsController extends Controller
     {
         $loadDate = $request->query->get('currentLoadDate');
         $em = $this->getDoctrine()->getManager();
-        $importTargetsRepository = $em->getRepository('AppBundle:TarImportTargets');
-        $currentTargetsRepository = $em->getRepository('AppBundle:TarCurrentTargets');
-        //$dataQualityChecksRepository = $em->getRepository('AppBundle:GsrmDataQualityChecks');
-        //$dataQualityChecks = $dataQualityChecksRepository->findBy(array('loadDate' => $loadDate),array('id' => 'asc'), null, null);
-        $importTargets = $importTargetsRepository->findAll();
+        $importRepository = $em->getRepository('AppBundle:TarImportTargets');
+        $currentRepository = $em->getRepository('AppBundle:TarCurrentTargets');
+        $dqcRepository = $em->getRepository('AppBundle:TarDataQualityChecks');
 
-        /*
+        $dataQualityChecks = $dqcRepository->findBy(array('loadDate' => $loadDate),array('id' => 'asc'), null, null);
+        $importTargets = $importRepository->findAll();
+
         // Number of distinct clientoutputID
-        $dataQualityChecksDistinctClientoutputId = $dataQualityChecksRepository->getDistinctClientOutputId($loadDate);
+        $dqcClientoutputids = $dqcRepository->getDistinctClientOutputId($loadDate);
 
         // Status by ClientoutputId
         $statusByClientoutputId = array();
-        for ($row = 0; $row < count($dataQualityChecksDistinctClientoutputId); $row++) {
-            $clientoutputId = $dataQualityChecksDistinctClientoutputId[$row]['clientOutputId'];
+        foreach ($dqcClientoutputids as $dqcClientoutputid) {
+            //$clientoutputId = $dqcClientoutputids['clientOutputId'];
             $statusByClientoutputId[] = array(
-                'clientoutputId' => $clientoutputId,
-                'nbr_of_warnings' => $dataQualityChecksRepository->getNbrOfWarnings($loadDate, $clientoutputId),
-                'nbr_of_removed_mappings' => $dataQualityChecksRepository->getNbrOfRemovedMappings($loadDate, $clientoutputId),
-                'nbr_of_changed_mappings' => $importTargetsRepository->getNbrOfChangedMappings($clientoutputId),
-                'nbr_of_new_mappings' => $importTargetsRepository->getNbrOfNewMappings($clientoutputId),
-                'nbr_of_unchanged_mappings' => $importTargetsRepository->getNbrOfUnchangedMappings($clientoutputId),
-                'nbr_of_current_mappings' => $currentTargetsRepository->getNbrOfMappings($clientoutputId),
-                'nbr_of_import_mappings' => $importTargetsRepository->getNbrOfMappings($clientoutputId)
+                'clientoutputId' => $dqcClientoutputid['clientOutputId'],
+                'nbr_of_warnings' => count($dqcRepository->findBy(array('clientOutputId' => $dqcClientoutputid['clientOutputId'], 'loadDate' => $loadDate, 'status' => 'WARNING'))),
+                'nbr_of_removed_data' => count($dqcRepository->findBy(array('clientOutputId' => $dqcClientoutputid['clientOutputId'], 'loadDate' => $loadDate, 'status' => 'REMOVED TARGET'))),
+                'nbr_of_changed_data' => count($importRepository->findBy(array('clientOutputId' => $dqcClientoutputid['clientOutputId'], 'targetStatus' => 'CHANGED'))),
+                'nbr_of_new_data' => count($importRepository->findBy(array('clientOutputId' => $dqcClientoutputid['clientOutputId'], 'targetStatus' => 'NEW'))),
+                'nbr_of_unchanged_data' => count($importRepository->findBy(array('clientOutputId' => $dqcClientoutputid['clientOutputId'], 'targetStatus' => 'UNCHANGED'))),
+                'nbr_of_current_data' => count($currentRepository->findBy(array('clientOutputId' => $dqcClientoutputid['clientOutputId']))),
+                'nbr_of_import_data' => count($importRepository->findBy(array('clientOutputId' => $dqcClientoutputid['clientOutputId'])))
             );
         }
 
         // Overview status
-        $totalNbrOfWarnings = 0;
-        $totalNbrOfRemovedMappings = 0;
-        $totalNbrOfChangedMappings = 0;
-        $totalNbrOfNewMappings = 0;
-        $totalNbrOfUnchangedMappings = 0;
-        for ($row = 0; $row < count($statusByClientoutputId); $row++) {
-            $totalNbrOfWarnings += $statusByClientoutputId[$row]['nbr_of_warnings'];
-            $totalNbrOfRemovedMappings += $statusByClientoutputId[$row]['nbr_of_removed_mappings'];
-            $totalNbrOfChangedMappings += $statusByClientoutputId[$row]['nbr_of_changed_mappings'];
-            $totalNbrOfNewMappings += $statusByClientoutputId[$row]['nbr_of_new_mappings'];
-            $totalNbrOfUnchangedMappings += $statusByClientoutputId[$row]['nbr_of_unchanged_mappings'];
-        }
         $overviewStatus = array(
-            'total_nbr_of_warnings' => $totalNbrOfWarnings,
-            'total_nbr_of_removed_mappings' => $totalNbrOfRemovedMappings,
-            'total_nbr_of_changed_mappings' => $totalNbrOfChangedMappings,
-            'total_nbr_of_new_mappings' => $totalNbrOfNewMappings,
-            'total_nbr_of_unchanged_mappings' => $totalNbrOfUnchangedMappings
+            'total_nbr_of_warnings' => count($dqcRepository->findBy(array('loadDate' => $loadDate, 'status' => 'WARNING'))),
+            'total_nbr_of_removed_data' => count($dqcRepository->findBy(array('loadDate' => $loadDate, 'status' => 'REMOVED TARGET'))),
+            'total_nbr_of_changed_data' => count($importRepository->findBy(array('targetStatus' => 'CHANGED'))),
+            'total_nbr_of_new_data' => count($importRepository->findBy(array('targetStatus' => 'NEW'))),
+            'total_nbr_of_unchanged_data' => count($importRepository->findBy(array('targetStatus' => 'UNCHANGED')))
         );
-        */
+
 
         // Confirm Form
         $confirmImportTargetsForm = $this->createFormBuilder()
@@ -239,13 +380,11 @@ class TargetsController extends Controller
             if($confirmImportTargetsForm->get('cancel')->isClicked())
             {
                 // Remove Data Quality Checks for $loadDate
-                /*
-                while ($dataQualityChecksRepository->findOneBy(array('loadDate' => $loadDate))) {
-                    $itemsToRemove = $dataQualityChecksRepository->findOneBy(array('loadDate' => $loadDate));
+                while ($dqcRepository->findOneBy(array('loadDate' => $loadDate))) {
+                    $itemsToRemove = $dqcRepository->findOneBy(array('loadDate' => $loadDate));
                     $em->remove($itemsToRemove);
                     $em->flush();
                 }
-                */
                 // Truncate table "tar_import_targets"
                 $connection = $em->getConnection();
                 $platform = $connection->getDatabasePlatform();
@@ -256,34 +395,35 @@ class TargetsController extends Controller
             elseif ($confirmImportTargetsForm->get('confirm')->isClicked())
             {
                 // Delete current targets before adding the new ones
-                $em = $this->getDoctrine()->getManager();
-                $currentTargetsRepository = $em->getRepository('AppBundle:TarCurrentTargets');
-                $importTargetsRepository = $em->getRepository('AppBundle:TarImportTargets');
+                //$em = $this->getDoctrine()->getManager(); // TO DELETE IF EVERYTHING WORKS
+                //$currentRepository = $em->getRepository('AppBundle:TarCurrentTargets'); // TO DELETE IF EVERYTHING WORKS
+                //$importRepository = $em->getRepository('AppBundle:TarImportTargets'); // TO DELETE IF EVERYTHING WORKS
 
-                $distinctClientoutputidInImportTargets = $importTargetsRepository->getDistinctClientOutputId();
+                $distinctClientoutputidInImportTargets = $importRepository->getDistinctClientOutputId();
 
                 for ($row = 0; $row < count($distinctClientoutputidInImportTargets); $row++)
                 {
                     $currentImportClientoutputid = $distinctClientoutputidInImportTargets[$row]['clientOutputId']; // Current Client_output_id
-                    while ($currentTargetsRepository->findOneBy(array('clientOutputId' => $currentImportClientoutputid)))
+                    while ($currentRepository->findOneBy(array('clientOutputId' => $currentImportClientoutputid)))
                     {
-                        $itemsToRemove = $currentTargetsRepository->findOneBy(array('clientOutputId' => $currentImportClientoutputid));
+                        $itemsToRemove = $currentRepository->findOneBy(array('clientOutputId' => $currentImportClientoutputid));
                         $em->remove($itemsToRemove);
                         $em->flush();
                     }
                 }
 
                 // Adding new mappings
-                $em = $this->getDoctrine()->getManager();
-                $currentTargetsRepository = $em->getRepository('AppBundle:TarCurrentTargets');
-                $importTargetsRepository = $em->getRepository('AppBundle:TarImportTargets');
-                //$importTargets = $importTargetsRepository->findAll();
+                //$em = $this->getDoctrine()->getManager(); // TO DELETE IF EVERYTHING WORKS
+                //$currentRepository = $em->getRepository('AppBundle:TarCurrentTargets'); // TO DELETE IF EVERYTHING WORKS
+                //$importRepository = $em->getRepository('AppBundle:TarImportTargets'); // TO DELETE IF EVERYTHING WORKS
+                //$importTargets = $importRepository->findAll(); // TO DELETE IF EVERYTHING WORKS
                 foreach ($importTargets as $target)
                 {
                     $targetEntity = new TarCurrentTargets();
                     $targetEntity->setClientOutputId($target->getClientOutputId());
                     $targetEntity->setProductMarketLevel($target->getProductMarketLevel());
                     $targetEntity->setRegionLevel($target->getRegionLevel());
+                    $targetEntity->setPeriodType($target->getPeriodType());
                     $targetEntity->setPeriod($target->getPeriod());
                     $targetEntity->setTargetUnits($target->getTargetUnits());
                     $targetEntity->setMsUnitsTarget($target->getMsUnitsTarget());
@@ -304,12 +444,11 @@ class TargetsController extends Controller
             }
         }
 
-
         return $this->render('Targets/load_result.html.twig', array(
-            //'dataQualityChecks' => $dataQualityChecks,
+            'dataQualityChecks' => $dataQualityChecks,
             'importTargets' => $importTargets,
-            //'statusByClientoutputId' => $statusByClientoutputId,
-            //'overviewStatus' => $overviewStatus,
+            'statusByClientoutputId' => $statusByClientoutputId,
+            'overviewStatus' => $overviewStatus,
             'confirmForm' => $confirmImportTargetsForm->createView(),
         ));
     }
