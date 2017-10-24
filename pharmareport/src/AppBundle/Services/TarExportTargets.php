@@ -12,7 +12,7 @@ class TarExportTargets
 
             $targets = $repository->findBy(array('clientOutputId' => $clientoutputId));
             $handle = fopen('php://output', 'r+');
-            $headersArray = array('ClientoutputId', 'Product Market Level', 'Region Level', 'Period', 'Target units', 'MS Units Target', 'MS Value Target', 'Target Value');
+            $headersArray = array('ClientoutputId', 'Product Market Level', 'Region Level', 'Period Type', 'Period', 'Target units', 'MS Units Target', 'MS Value Target', 'Target Value');
             fputcsv($handle, $headersArray, ';');
 
             foreach ($targets as $target) {
@@ -22,6 +22,7 @@ class TarExportTargets
                       $target->getClientOutputId(),
                       $target->getProductMarketLevel(),
                       $target->getRegionLevel(),
+                      $target->getPeriodType(),
                       $target->getPeriod(),
                       $target->getTargetUnits(),
                       $target->getMsUnitsTarget(),
