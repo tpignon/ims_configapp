@@ -213,7 +213,7 @@ class GeoSalesRepMappingController extends Controller
 
 
     /**
-     * @Route("/gsrm/load_result", name=" gsrm_loadResult")
+     * @Route("/gsrm/load_result", name="gsrm_loadResult")
      */
     public function viewLoadResultAction(Request $request)
     {
