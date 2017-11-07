@@ -47,6 +47,8 @@ class GsrmImportMapping
      *    "4049",
      *    "4249",
      *    "4351",
+     *    "25857",
+     *    "25858",
      *    ""},
      *    message = "The ClientOutputID {{ value }} is not valid.")
      */

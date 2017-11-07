@@ -22,6 +22,8 @@ class GsrmExportMappingTemplateFileType extends AbstractType
               'choices' => array(
                   'Select a dataset ...' => false,
                   'Boiron - PTR (ClientOutputID : 3970)' => '3970',
+                  'Leo Pharma - XPO - Prevention (ClientOutputID : 25857)' => '25857',
+                  'Leo Pharma - XPO - Treatment (ClientOutputID : 25858)' => '25858',
                   'MSD - CCC - Gastro (ClientOutputID : 3391)' => '3391',
                   'MSD - CCC - Rheumato (ClientOutputID : 3392)' => '3392',
                   'MSD - BHA - Gastro (ClientOutputID : 91)' => '91',

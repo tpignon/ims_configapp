@@ -8,6 +8,8 @@ class TarExportTargets
 {
     public function exportTargets($clientoutputId, $repository)
     {
+        $fileName = 'PharmaReport_Targets_' . $clientoutputId . '.csv';
+
         $response = new StreamedResponse(function() use($clientoutputId, $repository) {
 
             $targets = $repository->findBy(array('clientOutputId' => $clientoutputId));
@@ -37,7 +39,8 @@ class TarExportTargets
         });
 
         $response->headers->set('Content-Type', 'application/force-download');
-        $response->headers->set('Content-Disposition','attachment; filename="PharmaReport_Targets.csv"');
+        $response->headers->set('Content-Disposition', sprintf('attachment; filename="%s"', $fileName));
+        //$response->headers->set('Content-Disposition','attachment; filename="PharmaReport_Targets.csv"');
 
         return $response;
     }
