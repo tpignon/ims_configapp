@@ -66,11 +66,6 @@ class TarImportTargets
     private $regionLevel;
 
     /**
-     * @ORM\Column(name="period_type", type="string", length=100, nullable=true)
-     */
-    private $periodType;
-
-    /**
      * @ORM\Column(name="period", type="integer")
      * @Assert\NotBlank(message="Period should not be blank.")
      */

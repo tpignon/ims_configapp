@@ -32,7 +32,7 @@ class TargetsController extends Controller
         // ================================================================================================================
         // Import file
         // ================================================================================================================
-
+        ini_set('display_errors', 1);
         $importFile = new TarImportTargetsFile();
         $importFileForm = $this->createForm(TarImportTargetsFileType::class, $importFile);
 
@@ -50,7 +50,7 @@ class TargetsController extends Controller
             $file->move($targetsFileFolder, $targetsFileName);
 
             $importTargetsArray = array(); // This array will contain elements extracted from csv file
-            $importTargetsArray = $this->get('ImportFile')->importCSV($targetsFile, 9); // Row 0 contains headers
+            $importTargetsArray = $this->get('ImportFile')->importCSV($targetsFile, 8); // Row 0 contains headers
             if (array_key_exists('error', $importTargetsArray))
             {
                 return $this->render('Alerts/error_submit_file.html.twig', array(
@@ -62,17 +62,17 @@ class TargetsController extends Controller
             // Insert targets into MySQL DB, table "tar_import_targets"
             // --------------------------------------------------------------
             $em = $this->getDoctrine()->getManager();
+            $formatNumberService = $this->get('app.format_value');
             for ($row = 1; $row < count($importTargetsArray); $row++) {// Start at 1 because the first row contains headers
                 $importTargetsEntity = new TarImportTargets();
                 $importTargetsEntity->setClientOutputId($importTargetsArray[$row][0]);
                 $importTargetsEntity->setProductMarketLevel($importTargetsArray[$row][1]);
                 $importTargetsEntity->setRegionLevel($importTargetsArray[$row][2]);
-                $importTargetsEntity->setPeriodType($importTargetsArray[$row][3]);
-                $importTargetsEntity->setPeriod($importTargetsArray[$row][4]);
-                if (is_numeric($importTargetsArray[$row][5])) {$importTargetsEntity->setTargetUnits($importTargetsArray[$row][5]);} else {$importTargetsEntity->setTargetUnits(null);}
-                if (is_numeric($importTargetsArray[$row][6])) {$importTargetsEntity->setMsUnitsTarget($importTargetsArray[$row][6]);} else {$importTargetsEntity->setMsUnitsTarget(null);}
-                if (is_numeric($importTargetsArray[$row][7])) {$importTargetsEntity->setMsValueTarget($importTargetsArray[$row][7]);} else {$importTargetsEntity->setMsValueTarget(null);}
-                if (is_numeric($importTargetsArray[$row][8])) {$importTargetsEntity->setTargetValue($importTargetsArray[$row][8]);} else {$importTargetsEntity->setTargetValue(null);}
+                $importTargetsEntity->setPeriod($importTargetsArray[$row][3]);
+                $importTargetsEntity->setTargetUnits($formatNumberService->tofloat(str_replace(' ', '', $importTargetsArray[$row][4])));
+                $importTargetsEntity->setMsUnitsTarget($formatNumberService->tofloat(str_replace(' ', '', $importTargetsArray[$row][5])));
+                $importTargetsEntity->setMsValueTarget($formatNumberService->tofloat(str_replace(' ', '', $importTargetsArray[$row][6])));
+                $importTargetsEntity->setTargetValue($formatNumberService->tofloat(str_replace(' ', '', $importTargetsArray[$row][7])));
 
                 $validator = $this->get('validator');
                 $errors = $validator->validate($importTargetsEntity);
@@ -423,7 +423,6 @@ class TargetsController extends Controller
                     $targetEntity->setClientOutputId($target->getClientOutputId());
                     $targetEntity->setProductMarketLevel($target->getProductMarketLevel());
                     $targetEntity->setRegionLevel($target->getRegionLevel());
-                    $targetEntity->setPeriodType($target->getPeriodType());
                     $targetEntity->setPeriod($target->getPeriod());
                     $targetEntity->setTargetUnits($target->getTargetUnits());
                     $targetEntity->setMsUnitsTarget($target->getMsUnitsTarget());

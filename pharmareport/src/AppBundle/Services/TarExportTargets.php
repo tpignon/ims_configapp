@@ -24,7 +24,6 @@ class TarExportTargets
                       $target->getClientOutputId(),
                       $target->getProductMarketLevel(),
                       $target->getRegionLevel(),
-                      $target->getPeriodType(),
                       $target->getPeriod(),
                       $target->getTargetUnits(),
                       $target->getMsUnitsTarget(),

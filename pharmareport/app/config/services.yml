@@ -48,3 +48,5 @@ services:
         class: AppBundle\DataQualityChecks\RemovedData
     app.duplicate_data:
         class: AppBundle\DataQualityChecks\DuplicateData
+    app.format_value:
+        class: AppBundle\Services\FormatValue
